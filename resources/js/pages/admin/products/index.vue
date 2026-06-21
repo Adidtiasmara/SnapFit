@@ -63,7 +63,7 @@
                 <button @click="rejectProduct(p.id)" class="px-3 py-1.5 bg-surface hover:bg-red-50 text-red-500 text-[10px] font-bold rounded-md transition-colors border border-borderSoft hover:border-red-200">Reject</button>
               </template>
               <template v-else>
-                <button class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-muted text-[10px] font-bold rounded-md transition-colors">Detail</button>
+                <router-link :to="`/${p.id}`" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-muted text-[10px] font-bold rounded-md transition-colors">Detail</router-link>
               </template>
             </div>
           </div>

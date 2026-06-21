@@ -42,10 +42,13 @@
           <!-- Overlay on Hover -->
           <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
             <div class="flex items-center gap-3">
-              <button class="w-10 h-10 bg-surface/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-surface/30 transition-colors">
+              <button type="button" @click.stop="selectedPortfolio = item"
+                class="w-10 h-10 bg-surface/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-surface/30 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
               </button>
-              <button class="w-10 h-10 bg-surface/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-surface/30 transition-colors">
+              <button type="button" @click.stop="toggleLike(item)"
+                class="w-10 h-10 bg-surface/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white hover:bg-surface/30 transition-colors"
+                :class="likedPortfolioIds.includes(item.id) ? 'text-pink-300' : ''">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
               </button>
             </div>
@@ -86,17 +89,17 @@
             <div class="space-y-5">
               <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Judul Karya</label>
-                <input type="text" placeholder="Nama project / desain" class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all" />
+                <input v-model="portfolioForm.title" type="text" placeholder="Nama project / desain" class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all" />
               </div>
               <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Kategori</label>
-                <select class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer">
+                <select v-model="portfolioForm.category" class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all cursor-pointer">
                   <option v-for="c in categories.filter(c => c !== 'Semua')" :key="c">{{ c }}</option>
                 </select>
               </div>
               <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Deskripsi</label>
-                <textarea rows="3" placeholder="Ceritakan tentang karya ini..." class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all resize-none"></textarea>
+                <textarea v-model="portfolioForm.description" rows="3" placeholder="Ceritakan tentang karya ini..." class="w-full bg-slate-50 border border-borderSoft rounded-2xl px-5 py-3.5 text-sm font-medium text-espresso outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 transition-all resize-none"></textarea>
               </div>
               <div>
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Upload Gambar</label>
@@ -106,9 +109,30 @@
                   <p class="text-xs text-slate-400 font-medium mt-1">PNG, JPG, WebP · Max 5MB</p>
                 </div>
               </div>
-              <button class="w-full bg-terracotta text-white py-4 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:from-orange-700 hover:to-amber-600 transition-all shadow-sm active:scale-[0.98]">
+              <button type="button" @click="savePortfolio"
+                class="w-full bg-terracotta text-white py-4 rounded-2xl text-[10px] font-bold uppercase tracking-wider hover:from-orange-700 hover:to-amber-600 transition-all shadow-sm active:scale-[0.98]">
                 Simpan Karya
               </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="selectedPortfolio" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.self="selectedPortfolio = null">
+          <div class="bg-surface rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
+            <img :src="selectedPortfolio.image" :alt="selectedPortfolio.title" class="w-full aspect-video object-cover bg-slate-100" />
+            <div class="p-6">
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-terracotta mb-1">{{ selectedPortfolio.category }}</p>
+                  <h3 class="text-xl font-bold text-espresso">{{ selectedPortfolio.title }}</h3>
+                </div>
+                <button type="button" @click="selectedPortfolio = null" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-muted transition-colors">x</button>
+              </div>
+              <p class="text-sm text-muted leading-relaxed mt-4">{{ selectedPortfolio.description }}</p>
             </div>
           </div>
         </div>
@@ -122,6 +146,13 @@ import { ref, computed } from 'vue';
 
 const showUploadModal = ref(false);
 const activeCategory = ref('Semua');
+const selectedPortfolio = ref(null);
+const likedPortfolioIds = ref([]);
+const portfolioForm = ref({
+  title: '',
+  category: 'Packaging',
+  description: '',
+});
 const categories = ['Semua', 'Packaging', 'Branding', 'Social Media', 'Logo', 'Illustration', 'Photo'];
 
 const portfolioStats = [
@@ -144,6 +175,33 @@ const filteredPortfolio = computed(() => {
   if (activeCategory.value === 'Semua') return portfolio.value;
   return portfolio.value.filter(p => p.category === activeCategory.value);
 });
+
+const toggleLike = (item) => {
+  const index = likedPortfolioIds.value.indexOf(item.id);
+  if (index >= 0) {
+    likedPortfolioIds.value.splice(index, 1);
+    item.likes = Math.max(0, item.likes - 1);
+    return;
+  }
+  likedPortfolioIds.value.push(item.id);
+  item.likes += 1;
+};
+
+const savePortfolio = () => {
+  if (!portfolioForm.value.title.trim()) return;
+  portfolio.value.unshift({
+    id: Date.now(),
+    title: portfolioForm.value.title,
+    description: portfolioForm.value.description || 'Karya portofolio baru.',
+    category: portfolioForm.value.category,
+    image: '/images/products/batik_pekalongan.png',
+    views: 0,
+    likes: 0,
+    date: 'Jun 2026',
+  });
+  portfolioForm.value = { title: '', category: 'Packaging', description: '' };
+  showUploadModal.value = false;
+};
 </script>
 
 <style scoped>

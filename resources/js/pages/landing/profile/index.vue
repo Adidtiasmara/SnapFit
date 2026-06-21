@@ -49,7 +49,7 @@
         <!-- Form Area (Profil Saya) -->
         <div v-if="activeMenu === 'profile'" class="bg-surface rounded-[2rem] p-6 sm:p-8 border border-borderSoft shadow-sm">
           <div class="flex flex-col items-center mb-10">
-            <div class="w-24 h-24 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-xl shadow-terracotta/20 mb-4 relative group cursor-pointer border-4 border-white overflow-hidden">
+            <div @click="triggerAvatarUpload" class="w-24 h-24 bg-gradient-to-tr from-orange-600 to-amber-400 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-xl shadow-terracotta/20 mb-4 relative group cursor-pointer border-4 border-white overflow-hidden">
               <img :src="userAvatar" alt="Avatar" class="w-full h-full object-cover" />
               <div class="absolute inset-0 bg-slate-900/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,11 @@
                 </svg>
               </div>
             </div>
-            <button class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-terracotta transition-colors">Ubah Foto</button>
+            <input ref="avatarInput" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" @change="uploadAvatar" />
+            <button type="button" @click="triggerAvatarUpload" :disabled="isUploadingAvatar"
+              class="text-xs font-black uppercase tracking-widest text-slate-400 hover:text-terracotta transition-colors disabled:opacity-50">
+              {{ isUploadingAvatar ? 'Mengunggah...' : 'Ubah Foto' }}
+            </button>
           </div>
 
           <form class="space-y-6 max-w-2xl mx-auto" @submit.prevent="updateProfile">
@@ -126,7 +130,7 @@
             </div>
             <h3 class="text-xl font-bold text-espresso mb-2">Belum ada pesanan</h3>
             <p class="text-muted max-w-sm mb-8 text-sm">Anda belum melakukan pemesanan apapun. Mari temukan karya UMKM dan desainer kreatif terbaik!</p>
-            <button @click="router.push('/products')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-terracotta transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-terracotta/20 active:scale-[0.98]">Mulai Belanja</button>
+            <button @click="router.push('/')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-terracotta transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-terracotta/20 active:scale-[0.98]">Mulai Belanja</button>
           </div>
 
           <!-- Orders List -->
@@ -243,7 +247,7 @@
             </div>
             <h3 class="text-xl font-bold text-espresso mb-2">Keranjang Anda kosong</h3>
             <p class="text-muted max-w-sm mb-8 text-sm">Kelihatannya Anda belum menambahkan apapun ke keranjang. Yuk cari inspirasi desain!</p>
-            <button @click="router.push('/products')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-terracotta transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-terracotta/20 active:scale-[0.98]">Cari Produk</button>
+            <button @click="router.push('/')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-terracotta transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-terracotta/20 active:scale-[0.98]">Cari Produk</button>
           </div>
 
           <!-- Cart Items -->
@@ -309,7 +313,7 @@
             </div>
             <h3 class="text-xl font-bold text-espresso mb-2">Wishlist masih kosong</h3>
             <p class="text-muted max-w-sm mb-8 text-sm">Simpan produk atau desain favorit Anda di sini agar mudah ditemukan kembali nanti.</p>
-            <button @click="router.push('/products')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-red-500 transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-red-500/20 active:scale-[0.98]">Eksplorasi Sekarang</button>
+            <button @click="router.push('/')" class="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-red-500 transition-all duration-300 shadow-lg shadow-slate-900/10 hover:shadow-red-500/20 active:scale-[0.98]">Eksplorasi Sekarang</button>
           </div>
           <div v-else>
             <h3 class="text-2xl font-bold text-espresso mb-6">Wishlist Tersimpan</h3>
@@ -514,6 +518,8 @@ const cartItems = ref([]);
 const isLoadingCart = ref(false);
 const isLoadingOrders = ref(false);
 const isSavingProfile = ref(false);
+const isUploadingAvatar = ref(false);
+const avatarInput = ref(null);
 
 const token = localStorage.getItem('token');
 
@@ -842,6 +848,42 @@ const updateProfile = async () => {
     notificationStore.error('Terjadi kesalahan jaringan.');
   } finally {
     isSavingProfile.value = false;
+  }
+};
+
+const triggerAvatarUpload = () => {
+  avatarInput.value?.click();
+};
+
+const uploadAvatar = async (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  isUploadingAvatar.value = true;
+  try {
+    const body = new FormData();
+    body.append('image', file);
+    const res = await fetch('/api/v1/upload/avatar', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+      },
+      body,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || 'Gagal mengunggah foto.');
+    }
+    if (!user.value.profile) user.value.profile = {};
+    user.value.profile.avatar_url = data.avatar_url;
+    localStorage.setItem('user', JSON.stringify(user.value));
+    notificationStore.success('Foto profil berhasil diperbarui!');
+  } catch (err) {
+    notificationStore.error(err.message || 'Terjadi kesalahan saat mengunggah foto.');
+  } finally {
+    isUploadingAvatar.value = false;
+    event.target.value = '';
   }
 };
 </script>

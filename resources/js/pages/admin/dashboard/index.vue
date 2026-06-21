@@ -60,7 +60,7 @@
       <div class="lg:col-span-1 bg-surface rounded-2xl border border-borderSoft/60 p-5 sm:p-6">
         <div class="flex items-center justify-between mb-4 sm:mb-5">
           <h3 class="text-[13px] sm:text-[14px] font-bold text-espresso">Aktivitas Terbaru</h3>
-          <button class="text-[10px] sm:text-[11px] font-semibold text-terracotta hover:text-terracotta transition-colors">Lihat Semua</button>
+          <router-link to="/admin/orders" class="text-[10px] sm:text-[11px] font-semibold text-terracotta hover:text-terracotta transition-colors">Lihat Semua</router-link>
         </div>
 
         <div class="space-y-3 sm:space-y-4">

@@ -72,6 +72,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/notifications',
+    name: 'notifications',
+    component: () => import('@/pages/landing/notifications.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/shop/:id',
     name: 'shop.detail',
     component: () => import('@/pages/landing/marketplace/shop.vue'),

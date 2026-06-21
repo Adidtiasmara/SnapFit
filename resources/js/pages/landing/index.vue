@@ -118,7 +118,7 @@ const fetchMore = async () => {
 
 /* ── Navigation ───────────────────────────────────────── */
 const goToLogin   = () => router.push('/login');
-const goToProfile = () => console.log('Navigate to profile');
+const goToProfile = () => router.push('/profile');
 const goToOrders  = () => router.push('/orders');
 
 const logout = () => {

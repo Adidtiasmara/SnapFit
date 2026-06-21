@@ -18,7 +18,8 @@
         <kbd class="text-[9px] font-bold text-[#8B6B55] bg-[#FFFCF7] border border-[#E8DCCB] px-1.5 py-0.5 rounded">⌘K</kbd>
       </div>
       <!-- Notification -->
-      <button class="w-9 h-9 rounded-lg bg-[#F8F1E7]/70 flex items-center justify-center text-[#8B6B55] hover:bg-[#F2E6D8] hover:text-[#5C4333] transition-colors relative border border-[#E8DCCB]">
+      <button type="button" @click="router.push('/admin/roles')"
+        class="w-9 h-9 rounded-lg bg-[#F8F1E7]/70 flex items-center justify-center text-[#8B6B55] hover:bg-[#F2E6D8] hover:text-[#5C4333] transition-colors relative border border-[#E8DCCB]">
         <span class="absolute top-2 right-2 w-2 h-2 bg-terracotta rounded-full"></span>
         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
       </button>
@@ -27,6 +28,10 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 defineProps({
   pageTitle: String,
   pageDesc: String
