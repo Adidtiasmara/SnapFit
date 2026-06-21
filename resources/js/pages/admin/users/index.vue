@@ -72,7 +72,8 @@
                 <router-link :to="`/admin/users/edit/${u.id}`" class="w-7 h-7 rounded-md bg-slate-100 hover:bg-slate-200 text-muted flex items-center justify-center transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                 </router-link>
-                <button class="w-7 h-7 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors">
+                <button type="button" @click="deleteUser(u.id)"
+                  class="w-7 h-7 rounded-md hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
               </div>
@@ -85,8 +86,9 @@
       <div class="px-5 py-3.5 border-t border-borderSoft flex items-center justify-between">
         <p class="text-[11px] text-slate-400 font-medium">Menampilkan {{ filteredUsers.length }} dari {{ allUsers.length }} user</p>
         <div class="flex items-center gap-1">
-          <button v-for="p in 3" :key="p" class="w-8 h-8 rounded-md text-[11px] font-bold transition-colors"
-            :class="p === 1 ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-100'">{{ p }}</button>
+          <button v-for="p in pagination.last_page" :key="p" type="button" @click="fetchUsers(p)"
+            class="w-8 h-8 rounded-md text-[11px] font-bold transition-colors"
+            :class="p === pagination.current_page ? 'bg-slate-800 text-white' : 'text-slate-400 hover:bg-slate-100'">{{ p }}</button>
         </div>
       </div>
     </div>
@@ -111,10 +113,11 @@ const roleTabs = [
 const allUsers = ref([]);
 const pagination = ref({ current_page: 1, last_page: 1, total: 0 });
 
-const fetchUsers = async () => {
+const fetchUsers = async (page = 1) => {
   try {
     const token = localStorage.getItem('token') || '';
     const url = new URL(window.location.origin + '/api/v1/admin/users');
+    url.searchParams.append('page', page);
     if (roleFilter.value !== 'all') url.searchParams.append('role', roleFilter.value);
     if (search.value) url.searchParams.append('search', search.value);
     
@@ -135,6 +138,22 @@ const fetchUsers = async () => {
     }
   } catch (e) {
     console.error('Failed to fetch users:', e);
+  }
+};
+
+const deleteUser = async (id) => {
+  if (!confirm('Hapus user ini?')) return;
+  try {
+    const token = localStorage.getItem('token') || '';
+    const res = await fetch(`/api/v1/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      allUsers.value = allUsers.value.filter(u => u.id !== id);
+    }
+  } catch (e) {
+    console.error('Failed to delete user:', e);
   }
 };
 

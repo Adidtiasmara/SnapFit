@@ -47,6 +47,8 @@
                     </p>
 
                     <button
+                      type="button"
+                      @click="exploreCollection"
                       class="bg-terracotta px-3.5 py-1.5 sm:px-5 sm:py-2.5 rounded-xl font-bold text-[9px] sm:text-[11px] uppercase tracking-widest hover:bg-terracottaDark transition-all shadow-lg hover:shadow-terracotta/30">
                       Jelajahi Koleksi
                     </button>
@@ -87,6 +89,7 @@
 
         <!-- AI Studio -->
         <div
+          @click="goToAiStudio"
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-terracotta transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
           <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-terracotta/10 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +105,7 @@
 
         <!-- AR Try-On -->
         <div
+          @click="openArTryOn"
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
           <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-indigo/10 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,6 +123,7 @@
 
         <!-- Co-Create Room -->
         <div
+          @click="goToCoCreate"
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-olive transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
           <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-olive/10 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,11 +300,69 @@
       <!-- Load More Trigger -->
       <div ref="loadMoreTrigger" class="h-4 w-full"></div>
     </div>
+
+    <div v-if="isArPickerOpen" class="fixed inset-0 z-[80] flex items-center justify-center bg-[#2B1E16]/55 backdrop-blur-sm p-4 overflow-hidden overscroll-none" @click.self="closeArPicker" @wheel.self.prevent @touchmove.self.prevent>
+      <div class="w-full max-w-4xl h-[86vh] bg-[#FFFCF7] border border-[#E8DCCB] rounded-3xl shadow-2xl overflow-hidden flex flex-col" @wheel.stop @touchmove.stop>
+        <div class="px-5 sm:px-6 py-5 border-b border-[#E8DCCB] flex items-start justify-between gap-4">
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-[0.22em] text-terracotta mb-1">AR Try-On</p>
+            <h3 class="text-xl sm:text-2xl font-black text-espresso tracking-tight">Pilih produk yang ingin dicoba</h3>
+            <p class="text-xs sm:text-sm text-muted mt-1">Klik salah satu produk untuk membuka kamera AR pada halaman detail produk.</p>
+          </div>
+          <button type="button" @click="closeArPicker"
+            class="w-9 h-9 rounded-xl bg-sand hover:bg-[#E8DCCB] text-muted hover:text-espresso flex items-center justify-center transition-colors flex-shrink-0"
+            title="Tutup">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="px-5 sm:px-6 py-4 border-b border-[#E8DCCB]">
+          <div class="relative">
+            <svg class="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input v-model="arSearchQuery" type="text" placeholder="Cari nama produk, kategori, atau UMKM..."
+              class="w-full bg-white border border-[#E8DCCB] rounded-2xl pl-10 pr-4 py-3 text-sm font-medium text-espresso outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition-all" />
+          </div>
+        </div>
+
+        <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain p-5 sm:p-6">
+          <div v-if="arProductOptions.length === 0" class="py-14 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-sand mx-auto mb-4 flex items-center justify-center text-terracotta">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.6a1 1 0 00-.7.3l-2.4 2.4a1 1 0 01-.7.3h-3.2a1 1 0 01-.7-.3l-2.4-2.4a1 1 0 00-.7-.3H4" />
+              </svg>
+            </div>
+            <p class="text-base font-black text-espresso">Produk tidak ditemukan</p>
+            <p class="text-sm text-muted mt-1">Coba kata kunci lain atau lihat semua koleksi.</p>
+          </div>
+
+          <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <button v-for="product in arProductOptions" :key="product.id" type="button" @click="selectArProduct(product)"
+              class="text-left bg-white border border-[#E8DCCB] hover:border-terracotta hover:shadow-lg rounded-2xl overflow-hidden transition-all active:scale-[0.98] group">
+              <div class="aspect-square bg-slate-100 overflow-hidden">
+                <img :src="getProductImage(product)" :alt="product.name"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              </div>
+              <div class="p-3">
+                <p class="text-[12px] sm:text-[13px] font-black text-espresso leading-snug line-clamp-2 group-hover:text-terracotta transition-colors">
+                  {{ product.name }}
+                </p>
+                <p class="text-[10px] text-muted mt-1 truncate">{{ product.umkm_name || product.owner?.name || 'UMKM Lokal' }}</p>
+                <p class="text-sm font-black text-terracotta mt-2">Rp {{ Number(product.price || 0).toLocaleString('id-ID') }}</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
@@ -323,7 +386,11 @@ const props = defineProps({
 const emit = defineEmits(['load-more']);
 
 const loadMoreTrigger = ref(null);
+const isArPickerOpen = ref(false);
+const arSearchQuery = ref('');
 let observer = null;
+let previousBodyStyle = null;
+let lockedScrollY = 0;
 
 const activeCategory = ref('all');
 const categories = ['all', 'batik', 'kerajinan', 'aksesoris', 'dekorasi', 'fashion'];
@@ -353,16 +420,173 @@ const toggleWishlist = async (product) => {
   await wishlistStore.toggleWishlist(product);
 };
 
-const viewProductDetail = (product) => {
+const productDetailPath = (product) => {
   const slug = product.name.toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
-  router.push(`/${slug}-i.${product.id}`);
+  return `/${slug}-i.${product.id}`;
+};
+
+const viewProductDetail = (product) => {
+  router.push(productDetailPath(product));
+};
+
+const exploreCollection = () => {
+  document.getElementById('marketplace')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') ?? 'null');
+  } catch {
+    return null;
+  }
+};
+
+const normalizeRole = (role) => role === 'desainer' ? 'designer' : role;
+
+const getUserRoles = (user) => {
+  if (!user) return [];
+  const roles = [
+    normalizeRole(user.active_role),
+    ...(user.owned_roles ?? []).map(normalizeRole),
+    ...(user.roles ?? []).map(role => normalizeRole(role?.name ?? role)),
+  ].filter(Boolean);
+
+  if (user.is_umkm) roles.push('umkm');
+  if (user.is_designer) roles.push('designer');
+
+  return [...new Set(roles)];
+};
+
+const goToRoleRegistration = (path) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    router.push({ name: 'login', query: { redirect: path } });
+    return;
+  }
+  router.push(path);
+};
+
+const goToAiStudio = () => {
+  const roles = getUserRoles(getStoredUser());
+  if (roles.includes('umkm')) {
+    router.push('/umkm/studio');
+    return;
+  }
+  goToRoleRegistration('/register/umkm');
+};
+
+const openArTryOn = () => {
+  if (props.products.length === 0) {
+    exploreCollection();
+    return;
+  }
+  arSearchQuery.value = '';
+  isArPickerOpen.value = true;
+};
+
+const closeArPicker = () => {
+  isArPickerOpen.value = false;
+};
+
+const selectArProduct = (product) => {
+  closeArPicker();
+  router.push({ path: productDetailPath(product), query: { ar: 'true' } });
+};
+
+const goToCoCreate = () => {
+  const user = getStoredUser();
+  const activeRole = normalizeRole(user?.active_role);
+  const roles = getUserRoles(user);
+
+  if (activeRole === 'designer' || roles.includes('designer')) {
+    router.push('/designer/cocreate');
+    return;
+  }
+
+  if (activeRole === 'umkm' || roles.includes('umkm')) {
+    router.push('/umkm/cocreate');
+    return;
+  }
+
+  goToRoleRegistration('/register/designer');
 };
 
 const filteredProducts = computed(() => {
   if (activeCategory.value === 'all') return props.products;
   return props.products.filter(p => p.category === activeCategory.value);
+});
+
+const arProductOptions = computed(() => {
+  const query = arSearchQuery.value.trim().toLowerCase();
+  const products = props.products;
+  if (!query) return products;
+  return products.filter((product) => {
+    const searchable = [
+      product.name,
+      product.category,
+      product.umkm_name,
+      product.origin,
+      product.owner?.name,
+    ].filter(Boolean).join(' ').toLowerCase();
+    return searchable.includes(query);
+  });
+});
+
+const getProductImage = (product) => {
+  if (Array.isArray(product.images) && product.images.length > 0) return product.images[0];
+  if (typeof product.images === 'string') {
+    try {
+      const parsed = JSON.parse(product.images);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
+      if (typeof parsed === 'string' && parsed) return parsed;
+    } catch {
+      if (product.images) return product.images;
+    }
+  }
+  return product.image_url || 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?q=80&w=1000';
+};
+
+const lockBodyScroll = () => {
+  if (typeof document === 'undefined') return;
+  if (previousBodyStyle) return;
+
+  lockedScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  previousBodyStyle = {
+    overflow: document.body.style.overflow,
+    position: document.body.style.position,
+    top: document.body.style.top,
+    left: document.body.style.left,
+    right: document.body.style.right,
+    width: document.body.style.width,
+  };
+
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${lockedScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+};
+
+const unlockBodyScroll = () => {
+  if (typeof document === 'undefined' || !previousBodyStyle) return;
+
+  document.body.style.overflow = previousBodyStyle.overflow;
+  document.body.style.position = previousBodyStyle.position;
+  document.body.style.top = previousBodyStyle.top;
+  document.body.style.left = previousBodyStyle.left;
+  document.body.style.right = previousBodyStyle.right;
+  document.body.style.width = previousBodyStyle.width;
+  previousBodyStyle = null;
+
+  window.scrollTo(0, lockedScrollY);
+};
+
+watch(isArPickerOpen, (isOpen) => {
+  if (isOpen) lockBodyScroll();
+  else unlockBodyScroll();
 });
 
 const currentSlide = ref(0);
@@ -412,6 +636,7 @@ onBeforeUnmount(() => {
   if (observer) {
     observer.disconnect();
   }
+  unlockBodyScroll();
 });
 </script>
 

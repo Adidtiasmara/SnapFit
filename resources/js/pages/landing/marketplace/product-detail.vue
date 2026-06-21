@@ -1487,7 +1487,7 @@ const inviteCollaboration = async () => {
 
 /* ── Navigation ───────────────────────────────────────── */
 const goToLogin   = () => router.push('/login');
-const goToProfile = () => console.log('Navigate to profile');
+const goToProfile = () => router.push('/profile');
 const goToOrders  = () => router.push('/orders');
 
 const logout = () => {
@@ -2176,12 +2176,24 @@ watch(
   }
 );
 
-onMounted(() => {
+watch(
+  () => route.query.ar,
+  (val) => {
+    if (val === 'true' && product.value) {
+      openArModal();
+    }
+  }
+);
+
+onMounted(async () => {
   const stored = localStorage.getItem('user');
   if (stored) user.value = JSON.parse(stored);
-  loadProduct();
+  await loadProduct();
   if (route.query.review === 'true') {
     openReviewModal();
+  }
+  if (route.query.ar === 'true') {
+    openArModal();
   }
 });
 </script>

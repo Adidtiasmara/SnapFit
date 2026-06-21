@@ -70,9 +70,9 @@
                 Produk tidak ditemukan
               </div>
               <div v-else class="max-h-[60vh] overflow-y-auto hide-scrollbar">
-                <a v-for="item in searchResults" :key="item.id" href="javascript:void(0)"
-                  @click.prevent="goToProduct(item)"
-                  class="flex items-center gap-3 p-3 hover:bg-sand transition-colors border-b border-gray-50 last:border-0">
+                <button v-for="item in searchResults" :key="item.id" type="button"
+                  @click="goToProduct(item)"
+                  class="w-full text-left flex items-center gap-3 p-3 hover:bg-sand transition-colors border-b border-gray-50 last:border-0">
                   <img :src="item.images?.[0] ?? item.image_url ?? '/images/placeholder.png'"
                     class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0" />
                   <div class="flex-1 min-w-0">
@@ -80,7 +80,7 @@
                     <p class="text-[10px] text-terracotta font-bold mt-0.5">Rp {{ Number(item.price ??
                       0).toLocaleString('id-ID') }}</p>
                   </div>
-                </a>
+                </button>
               </div>
             </div>
           </Transition>
@@ -146,7 +146,8 @@
                 
                 <!-- Footer (Sticky) -->
                 <div class="sticky bottom-0 p-4 border-t border-[#E8DCCB] text-center bg-[#FFFCF7] hover:bg-[#F8F1E7] transition-colors cursor-pointer z-20">
-                  <button class="text-xs font-black text-[#2B1E16] hover:text-[#B85C38] transition-colors">Lihat Semua
+                  <button type="button" @click="goToNotifications"
+                    class="text-xs font-black text-[#2B1E16] hover:text-[#B85C38] transition-colors">Lihat Semua
                     Notifikasi</button>
                 </div>
               </div>
@@ -553,6 +554,10 @@ const goToLogin = () => emit('goToLogin');
 const goToProfile = () => { showUserMenu.value = false; router.push('/profile'); };
 const goToOrders = () => { showUserMenu.value = false; router.push('/profile?tab=orders'); };
 const goToCart = () => { showCart.value = false; router.push('/cart'); };
+const goToNotifications = () => {
+  showNotifications.value = false;
+  router.push('/notifications');
+};
 const logout = async () => {
   try {
     const token = localStorage.getItem('token');
