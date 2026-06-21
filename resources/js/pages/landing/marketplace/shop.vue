@@ -2,7 +2,7 @@
   <div class="snapfit-heritage-bg min-h-screen font-sans pb-24">
     <Navbar :user="user" />
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28">
+    <div class="max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-8 pt-16">
       <!-- Back Button -->
       <button @click="router.back()" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-espresso bg-white/60 hover:bg-white border border-borderSoft/60 hover:border-terracotta/40 rounded-full shadow-[0_2px_8px_rgba(43,30,22,0.04)] backdrop-blur-md transition-all duration-300 hover:-translate-x-0.5 mb-6 group cursor-pointer">
         <svg class="w-4 h-4 text-espresso group-hover:text-terracotta transition-colors transform group-hover:-translate-x-0.5 duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">

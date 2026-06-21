@@ -74,30 +74,8 @@ class AiImageGenerationService
             $style = 'catalog';
         }
 
-        // Tentukan gambar hasil generate yang estetik sesuai kategori
-        $fallbackImages = [];
-        if ($category === 'batik') {
-            $fallbackImages = [
-                '/images/products/batik_parang.png',
-                '/images/products/batik_fallback.png'
-            ];
-        } elseif ($category === 'kebaya') {
-            $fallbackImages = [
-                '/images/products/kebaya_kutubaru.png',
-                '/images/products/fashion_fallback.png'
-            ];
-        } elseif ($category === 'aksesoris') {
-            $fallbackImages = [
-                '/images/products/gelang_perak.png',
-                '/images/products/aksesoris_fallback.png'
-            ];
-        } else {
-            // General fashion/products
-            $fallbackImages = [
-                $originalImageUrl,
-                '/images/products/fashion_fallback.png'
-            ];
-        }
+        // Gunakan gambar original sebagai fallback (bukan path statis yang tidak ada di server)
+        $fallbackImages = [$originalImageUrl];
 
         // Buat markdown report yang sangat profesional dalam Bahasa Indonesia
         $styleTitle = ucfirst($style);
@@ -138,20 +116,36 @@ Laporan arahan kreatif dan optimasi visual untuk produk Anda dengan gaya **{$sty
     }
 
     /**
-     * Get text analysis from Groq
+     * Get text analysis from Groq (menggunakan Vision model agar bisa menganalisis gambar produk)
      */
     private function getTextAnalysis(string $imageUrl, string $prompt, string $apiKey): ?string
     {
         try {
+            // Gunakan vision model agar AI bisa melihat dan menganalisis gambar produk secara langsung
             $response = Http::withHeaders([
                 'Authorization' => "Bearer {$apiKey}",
                 'Content-Type' => 'application/json',
             ])->timeout(60)->post('https://api.groq.com/openai/v1/chat/completions', [
-                'model' => 'llama-3.1-8b-instant',
+                'model' => 'llama-3.2-11b-vision-preview',
                 'messages' => [
                     [
+                        'role' => 'system',
+                        'content' => 'Kamu adalah seorang senior creative director dan ahli fotografi produk profesional yang membantu UMKM Indonesia. Berikan analisis dalam Bahasa Indonesia yang detail, profesional, dan actionable. Gunakan format Markdown yang rapi.',
+                    ],
+                    [
                         'role' => 'user',
-                        'content' => "Analyze this product photography request: '{$prompt}'. The product image URL is: {$imageUrl}\n\nProvide a detailed AI Product Studio report in Markdown format in Indonesian language.\n\nInclude:\n1. 📸 **Analisis Produk & Rekomendasi Styling** - lighting, angle kamera, background\n2. ✍️ **Kaption Pemasaran** - 3 variasi caption Instagram/TikTok (casual, profesional, persuasif) dengan emoji\n3. 🏷️ **Hashtag** - 10 hashtag relevan dan trending\n4. 🎨 **Target Audiens & Vibe** - target market dan aesthetic\n\nBuat seperti senior creative director yang menasihati UMKM.",
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => "Analisis gambar produk ini dan berikan laporan AI Product Studio berdasarkan arahan gaya: '{$prompt}'.\n\nBerikan laporan lengkap dalam format Markdown meliputi:\n\n### 📸 Analisis Visual Produk\n- Deskripsi detail apa yang terlihat di gambar (warna dominan, bentuk, tekstur, detail produk)\n- Rekomendasi pencahayaan (lighting setup ideal)\n- Rekomendasi sudut kamera (angle) terbaik\n- Rekomendasi background/latar belakang\n- Rekomendasi properti pendukung styling\n\n### ✍️ Caption Pemasaran\nBuatkan 3 variasi caption untuk Instagram/TikTok:\n- **Opsi 1 (Casual & Relatable):** caption santai dengan emoji\n- **Opsi 2 (Profesional & Edukatif):** caption formal dan informatif\n- **Opsi 3 (Persuasif & Promosional):** caption untuk hard selling\n\n### 🏷️ Hashtag Trending\n10 hashtag relevan dan trending untuk produk ini\n\n### 🎨 Target Audiens & Vibe\n- Target pasar ideal\n- Aesthetic/vibe yang cocok\n- Platform terbaik untuk promosi",
+                            ],
+                            [
+                                'type' => 'image_url',
+                                'image_url' => [
+                                    'url' => $imageUrl,
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 'max_tokens' => 2000,

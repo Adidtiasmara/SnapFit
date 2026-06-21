@@ -2,7 +2,7 @@
   <div class="snapfit-heritage-bg min-h-screen text-espresso font-sans relative pb-20">
     <Navbar :user="user" />
 
-    <main class="max-w-6xl mx-auto px-4 py-6 md:py-10 pt-24 md:pt-28">
+    <main class="max-w-[1420px] mx-auto px-4 py-6 md:py-10 pt-16">
       <!-- Back button and Title Header -->
       <div class="mb-6 md:mb-8" data-aos="fade-down">
         <button @click="goBack" class="inline-flex items-center gap-2 text-slate-500 hover:text-espresso transition-colors font-bold text-sm mb-3 md:mb-4">

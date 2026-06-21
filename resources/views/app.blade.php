@@ -6,8 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' * data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; style-src 'self' 'unsafe-inline' *; font-src 'self' data: *; img-src 'self' data: blob: *; frame-src 'self' *; connect-src 'self' * blob: ws: wss:;">
 
-    <title>SnapFit | Jembatan Busana Adat Nusantara & AI Virtual Try-On</title>
-    <meta name="description" content="Jelajahi keunikan busana adat Nusantara langsung dari pengrajin lokal di SnapFit. Cobalah pakaian tradisional secara virtual dengan teknologi AI AR Virtual Try-On secara instan.">
+    <title>SnapFit | Revitalisasi Wastra Nusantara Melalui Immersive AI & AR Virtual Try-On</title>
+    <meta name="description" content="SnapFit merevolusi pelestarian warisan budaya dengan mendigitalisasi wastra Nusantara langsung dari pengrajin lokal, didukung teknologi Immersive AI Studio dan AR Virtual Try-On.">
     <meta name="keywords" content="SnapFit, busana adat, batik, tenun, virtual try-on, augmented reality, AI fitting room, warisan budaya, kebaya, surjan, fashion nusantara">
     <link rel="icon" type="image/png" href="/images/logo1.png">
 

@@ -96,25 +96,46 @@
           </div>
 
           <!-- Submit -->
-          <button type="submit" :disabled="isGenerating || (!selectedFile && !form.original_image_url)" class="w-full bg-[#2B1E16] hover:bg-[#B85C38] text-white px-5 py-3.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <button type="submit" :disabled="isGenerating || (!selectedFile && !form.original_image_url)" class="w-full bg-[#2B1E16] hover:bg-[#B85C38] text-white px-5 py-3.5 rounded-xl text-[12px] font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 btn-press shadow-md hover:shadow-lg">
             <svg v-if="isGenerating" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
             <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
             {{ isGenerating ? 'AI Sedang Menganalisis...' : 'Mulai Analisis AI' }}
           </button>
         </form>
 
-        <!-- Loading Steps -->
-        <div v-if="isGenerating" class="bg-white rounded-2xl border border-[#E8DCCB]/60 p-5 space-y-2">
-          <p class="text-[11px] font-bold text-[#2B1E16] mb-3">Proses AI</p>
-          <div v-for="(step, idx) in loadingSteps" :key="idx" class="flex items-center gap-2 text-[11px]"
-            :class="loadingStep > idx ? 'text-[#0F8A4B] font-semibold' : loadingStep === idx ? 'text-[#B85C38] font-semibold animate-pulse' : 'text-[#8A7A6C]'">
-            <span class="w-4 h-4 flex items-center justify-center">
-              <svg v-if="loadingStep > idx" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
-              <span v-else-if="loadingStep === idx" class="w-2 h-2 bg-[#B85C38] rounded-full animate-pulse"></span>
-              <span v-else class="w-1.5 h-1.5 bg-[#E8DCCB] rounded-full"></span>
-            </span>
-            {{ step }}
+        <!-- Loading Steps & Progress Bar -->
+        <div v-if="isGenerating" class="bg-white rounded-2xl border border-[#E8DCCB]/60 p-5 space-y-4 animate-slide-up shadow-sm">
+          <div class="flex items-center justify-between">
+            <p class="text-[11px] font-bold text-[#2B1E16]">Proses AI Studio</p>
+            <span class="text-[10px] font-bold text-[#B85C38]">{{ progressPercent }}%</span>
           </div>
+          <!-- Progress Bar -->
+          <div class="w-full bg-[#F8F1E7] rounded-full h-1.5 overflow-hidden">
+            <div class="bg-[#B85C38] h-1.5 rounded-full transition-all duration-300 ease-out" :style="{ width: progressPercent + '%' }"></div>
+          </div>
+          <div class="space-y-2">
+            <div v-for="(step, idx) in loadingSteps" :key="idx" class="flex items-center gap-2 text-[11px]"
+              :class="loadingStep > idx ? 'text-[#0F8A4B] font-semibold' : loadingStep === idx ? 'text-[#B85C38] font-semibold animate-pulse' : 'text-[#8A7A6C]'">
+              <span class="w-4 h-4 flex items-center justify-center">
+                <svg v-if="loadingStep > idx" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+                <span v-else-if="loadingStep === idx" class="w-2 h-2 bg-[#B85C38] rounded-full animate-pulse"></span>
+                <span v-else class="w-1.5 h-1.5 bg-[#E8DCCB] rounded-full"></span>
+              </span>
+              {{ step }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Failure state with Retry Button -->
+        <div v-if="hasFailed && !isGenerating" class="bg-red-50 rounded-2xl border border-red-200 p-5 space-y-3 animate-slide-up">
+          <div class="flex items-center gap-2 text-red-700">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <p class="text-xs font-bold">Analisis AI Gagal</p>
+          </div>
+          <p class="text-[11px] text-red-600 leading-relaxed">{{ errorMessage || 'Terjadi kesalahan saat menghubungi layanan AI.' }}</p>
+          <button type="button" @click="generateAI" class="w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[11px] font-bold transition-all active:scale-[0.98] shadow-sm">
+            Coba Lagi
+          </button>
         </div>
       </div>
 
@@ -128,8 +149,25 @@
             </button>
           </div>
 
-          <div v-if="loadingHistory" class="flex items-center justify-center py-20">
-            <svg class="animate-spin w-7 h-7 text-[#B85C38]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+          <!-- Skeleton Loading Shimmer -->
+          <div v-if="loadingHistory" class="space-y-6">
+            <div v-for="i in 2" :key="i" class="border-b border-[#E8DCCB]/40 pb-8 last:border-0">
+              <div class="flex flex-col sm:flex-row items-start gap-5">
+                <div class="w-full sm:w-40 shrink-0 aspect-square skeleton"></div>
+                <div class="flex-1 w-full space-y-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-16 h-4 skeleton"></div>
+                    <div class="w-24 h-3 skeleton"></div>
+                  </div>
+                  <div class="w-3/4 h-4 skeleton"></div>
+                  <div class="space-y-2">
+                    <div class="w-full h-3 skeleton"></div>
+                    <div class="w-11/12 h-3 skeleton"></div>
+                    <div class="w-4/5 h-3 skeleton"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div v-else-if="history.length === 0" class="flex flex-col items-center justify-center py-16 text-center">
@@ -193,6 +231,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { marked } from 'marked';
+import { useNotificationStore } from '@/stores/notificationStore';
+
+const notificationStore = useNotificationStore();
 
 const previewUrl = ref(null);
 const fileInput = ref(null);
@@ -202,6 +243,9 @@ const loadingHistory = ref(true);
 const history = ref([]);
 const pagination = ref({ current_page: 1, last_page: 1 });
 const loadingStep = ref(0);
+const progressPercent = ref(0);
+const hasFailed = ref(false);
+const errorMessage = ref('');
 let loadingInterval = null;
 
 const loadingSteps = [
@@ -232,12 +276,14 @@ const handleFileChange = (e) => {
   const file = e.target.files[0];
   if (!file) return;
   if (file.size > 5 * 1024 * 1024) {
-    alert('Ukuran file maksimal 5MB.');
+    notificationStore.error('Ukuran file maksimal adalah 5MB.');
     return;
   }
   selectedFile.value = file;
   previewUrl.value = URL.createObjectURL(file);
   form.value.original_image_url = '';
+  hasFailed.value = false;
+  errorMessage.value = '';
 };
 
 const clearFile = () => {
@@ -286,23 +332,38 @@ const uploadFile = async () => {
 
 const startLoadingAnimation = () => {
   loadingStep.value = 0;
+  progressPercent.value = 8;
   loadingInterval = setInterval(() => {
-    if (loadingStep.value < loadingSteps.length - 1) loadingStep.value++;
-  }, 1500);
+    if (loadingStep.value < loadingSteps.length - 1) {
+      loadingStep.value++;
+    }
+    // Increment progress percent realistically
+    if (progressPercent.value < 90) {
+      const increment = Math.floor(Math.random() * 12) + 12; // 12-23% increment
+      progressPercent.value = Math.min(progressPercent.value + increment, 92);
+    }
+  }, 1800);
 };
 
-const stopLoadingAnimation = () => {
+const stopLoadingAnimation = (success = true) => {
   if (loadingInterval) { clearInterval(loadingInterval); loadingInterval = null; }
-  loadingStep.value = loadingSteps.length;
+  if (success) {
+    loadingStep.value = loadingSteps.length;
+    progressPercent.value = 100;
+  } else {
+    progressPercent.value = 0;
+  }
 };
 
 const generateAI = async () => {
   if (!selectedFile.value && !form.value.original_image_url) {
-    alert('Harap unggah foto atau masukkan URL gambar.');
+    notificationStore.warning('Harap unggah foto atau masukkan URL gambar produk.');
     return;
   }
 
   isGenerating.value = true;
+  hasFailed.value = false;
+  errorMessage.value = '';
   startLoadingAnimation();
 
   try {
@@ -320,19 +381,29 @@ const generateAI = async () => {
     });
 
     if (res.ok) {
+      stopLoadingAnimation(true);
+      notificationStore.success('Analisis AI Berhasil Dibuat!', 4000);
+      
+      // Clear inputs
       clearFile();
       form.value.original_image_url = '';
       form.value.prompt = '';
-      await fetchHistory(1);
+      
+      // Delay history refresh slightly to let animation finish smoothly
+      setTimeout(async () => {
+        await fetchHistory(1);
+      }, 500);
     } else {
       const error = await res.json();
-      alert('Gagal: ' + (error.message || error.error || 'Unknown error'));
+      throw new Error(error.message || error.error || 'Terjadi kesalahan pada server AI.');
     }
   } catch (e) {
     console.error(e);
-    alert(e.message || 'Terjadi kesalahan saat memproses.');
+    stopLoadingAnimation(false);
+    hasFailed.value = true;
+    errorMessage.value = e.message || 'Gagal memproses analisis AI. Silakan coba kembali.';
+    notificationStore.error(errorMessage.value);
   } finally {
-    stopLoadingAnimation();
     isGenerating.value = false;
   }
 };
@@ -345,8 +416,16 @@ const deleteHistory = async (id) => {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
     });
-    if (res.ok) fetchHistory(1);
-  } catch (e) { console.error(e); }
+    if (res.ok) {
+      notificationStore.success('Riwayat berhasil dihapus.');
+      fetchHistory(1);
+    } else {
+      notificationStore.error('Gagal menghapus riwayat.');
+    }
+  } catch (e) { 
+    console.error(e); 
+    notificationStore.error('Terjadi kesalahan saat menghapus.');
+  }
 };
 
 const formatDate = (d) => {

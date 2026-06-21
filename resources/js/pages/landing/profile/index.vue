@@ -3,7 +3,7 @@
     <!-- Menggunakan Navbar bawaan SnapFit -->
     <Navbar :user="user" />
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8 pt-20 md:pt-28 flex flex-col md:flex-row gap-6 lg:gap-8">
+    <div class="max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8 pt-16 flex flex-col md:flex-row gap-6 lg:gap-8">
       <!-- Sidebar -->
       <aside class="w-full md:w-72 flex-shrink-0 space-y-6">
         <!-- Profile Card -->

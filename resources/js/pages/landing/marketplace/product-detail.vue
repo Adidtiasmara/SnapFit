@@ -1,5 +1,6 @@
 <template>
-  <section class="snapfit-heritage-bg min-h-screen text-espresso pb-0 lg:pb-10 relative overflow-hidden">
+  <div>
+    <section class="snapfit-heritage-bg min-h-screen text-espresso pb-0 lg:pb-10 relative overflow-hidden">
     <!-- Navbar -->
     <Navbar
       :user="user"
@@ -10,229 +11,143 @@
     />
 
     <!-- Main Content Container -->
-    <div class="relative z-10 max-w-7xl mx-auto">
+    <div class="relative z-10 max-w-[1420px] mx-auto">
 
       <!-- DESKTOP VIEW (hidden on mobile, visible on lg and up) -->
-      <div class="desktop-view-container hidden lg:block px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-12">
-        <!-- Back Button (Desktop only) -->
-        <div class="flex mb-6 items-center gap-2 text-sm font-semibold text-muted">
-          <button @click="router.push('/')" class="hover:text-espresso transition flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Kembali ke Beranda
-          </button>
+      <div class="desktop-view-container hidden lg:block px-4 sm:px-6 lg:px-8 pt-16 sm:pt-16 pb-12">
+        <!-- Breadcrumbs (Desktop only) -->
+        <div class="flex mb-6 items-center gap-2 text-xs font-semibold text-[#8A7A6C] tracking-wide">
+          <router-link to="/" class="hover:text-terracotta transition">Beranda</router-link>
+          <span class="text-slate-300">/</span>
+          <span class="hover:text-terracotta transition capitalize cursor-pointer" @click="router.push(`/?category=${product?.category}`)">{{ product?.category ?? 'Kategori' }}</span>
+          <span class="text-slate-300">/</span>
+          <span class="text-espresso font-black truncate max-w-[250px]">{{ product?.name }}</span>
         </div>
 
+        <!-- Main Product Section (Image on left, Buy/Info block on right) -->
         <div class="grid gap-8 grid-cols-[1.1fr_1fr] items-start">
-          <!-- Left Column -->
-          <div class="space-y-6">
-            <div class="bg-surface rounded-3xl p-4 shadow-sm border border-borderSoft overflow-hidden">
-              <div class="grid gap-4">
-                <div class="relative overflow-hidden rounded-3xl bg-slate-100 aspect-square lg:aspect-[4/5]">
-                  <img
-                    v-if="activeImage"
-                    :src="activeImage"
-                    :alt="product?.name ?? 'Product image'"
-                    class="w-full h-full object-cover transition duration-300 ease-out hover:scale-105"
-                  />
-                  <div class="absolute right-4 top-4 rounded-full bg-surface/85 px-3 py-1.5 text-xs font-semibold text-espresso backdrop-blur">
-                    {{ currentImageLabel }}
-                  </div>
-                </div>
-
-                <div class="flex flex-row gap-3 overflow-x-auto hide-scrollbar rounded-2xl bg-slate-50 p-2.5 border border-borderSoft">
-                  <button
-                    v-for="(image, index) in galleryImages"
-                    :key="index"
-                    type="button"
-                    @click="activeImageIndex = index"
-                    class="group flex-shrink-0 w-20 h-20 flex items-center justify-center overflow-hidden rounded-2xl border transition-all duration-200"
-                    :class="index === activeImageIndex ? 'border-terracotta ring-2 ring-terracotta/20' : 'border-borderSoft hover:border-terracotta/50'"
-                  >
-                    <img :src="image" :alt="`Gallery ${index + 1}`" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid gap-6 grid-cols-[1.5fr_1fr]">
-              <!-- Product Story Tabs -->
-              <div class="rounded-3xl bg-surface p-1 shadow-sm border border-borderSoft overflow-hidden flex flex-col">
-                <div class="flex overflow-x-auto hide-scrollbar border-b border-borderSoft px-2 pt-2 gap-2">
-                  <button v-for="tab in ['Deskripsi', 'Cerita Budaya', 'Material', 'Profil UMKM']" :key="tab"
-                    @click="activeTab = tab"
-                    class="px-4 py-3 text-sm font-bold whitespace-nowrap transition-colors border-b-2"
-                    :class="activeTab === tab ? 'border-terracotta text-terracotta' : 'border-transparent text-muted hover:text-espresso'"
-                  >
-                    {{ tab }}
-                  </button>
-                </div>
-                <div class="p-6 bg-white flex-1 rounded-b-3xl">
-                  <div v-if="activeTab === 'Deskripsi'" class="animate-fade-in">
-                    <p class="text-espresso text-sm leading-relaxed whitespace-pre-line">{{ product?.description }}</p>
-                  </div>
-                  <div v-if="activeTab === 'Cerita Budaya'" class="animate-fade-in space-y-6">
-                    <div>
-                      <h4 class="text-sm font-bold text-espresso mb-2">Filosofi Budaya</h4>
-                      <p class="text-muted text-sm leading-relaxed">{{ product?.cultural_story }}</p>
-                    </div>
-                    <div>
-                      <h4 class="text-sm font-bold text-espresso mb-2">Makna Motif</h4>
-                      <p class="text-muted text-sm leading-relaxed">{{ product?.motif_meaning }}</p>
-                    </div>
-                  </div>
-                  <div v-if="activeTab === 'Material'" class="animate-fade-in">
-                    <p class="text-muted text-sm leading-relaxed whitespace-pre-line">{{ product?.material_care }}</p>
-                  </div>
-                  <div v-if="activeTab === 'Profil UMKM'" class="animate-fade-in">
-                    <p class="text-muted text-sm leading-relaxed">{{ product?.artisan_info }}</p>
-                  </div>
+          <!-- Left Column: Product Gallery -->
+          <div class="bg-surface rounded-[2.25rem] p-4 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft overflow-hidden">
+            <div class="grid gap-4">
+              <!-- Main Image -->
+              <div class="relative overflow-hidden rounded-[1.75rem] bg-slate-50 aspect-square lg:aspect-[4/5] border border-borderSoft/20 shadow-inner">
+                <img
+                  v-if="activeImage"
+                  :src="activeImage"
+                  :alt="product?.name ?? 'Product image'"
+                  class="w-full h-full object-cover transition duration-300 ease-out hover:scale-105"
+                />
+                <div class="absolute right-4 top-4 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-bold text-espresso backdrop-blur border border-borderSoft/40 shadow-sm">
+                  {{ currentImageLabel }}
                 </div>
               </div>
 
-              <!-- Enhanced Seller Info -->
-              <div class="rounded-3xl bg-surface p-6 shadow-sm border border-borderSoft flex flex-col">
-                <h3 class="text-base font-bold tracking-tight text-espresso mb-4">Informasi Penjual</h3>
-                <div class="flex items-center gap-4 mb-5">
-                  <div class="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden border border-borderSoft flex-shrink-0">
-                    <img v-if="product?.seller?.avatar_url" :src="product.seller.avatar_url" :alt="product.seller.name" class="w-full h-full object-cover" />
-                    <img v-else :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(product?.seller?.name || 'UMKM')}`" alt="Seller Avatar" class="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <h4 class="font-bold text-espresso text-base">{{ product?.seller?.name }}</h4>
-                    <p class="text-xs text-muted flex items-center gap-1 mt-1">
-                      <svg class="w-3 h-3 text-terracotta" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
-                      {{ product?.seller?.location }}
-                    </p>
-                  </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-6 bg-slate-50 rounded-2xl p-3 border border-borderSoft">
-                  <div class="text-center">
-                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Rating</p>
-                    <p class="text-sm font-bold text-espresso flex items-center justify-center gap-1">
-                      <svg class="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
-                      {{ product?.seller?.rating }}
-                    </p>
-                  </div>
-                  <div class="text-center border-l border-borderSoft">
-                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1">Terjual</p>
-                    <p class="text-sm font-bold text-espresso">{{ product?.seller?.sold }}+</p>
-                  </div>
-                </div>
-
-                <div class="mt-auto grid gap-2">
-                  <button @click="visitShop" class="w-full py-2.5 rounded-xl border border-terracotta text-terracotta font-bold text-xs hover:bg-terracotta hover:text-white transition">Kunjungi Toko</button>
-                  <button @click="inviteCollaboration" class="w-full py-2.5 rounded-xl bg-[#2B1E16] text-white font-bold text-xs hover:bg-black transition">Ajak Kolaborasi</button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Related Products -->
-            <div class="rounded-3xl bg-surface p-6 shadow-sm border border-borderSoft">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-base sm:text-lg font-bold tracking-tight text-espresso">Produk Terkait</h3>
+              <!-- Thumbnails -->
+              <div class="flex flex-row gap-3 overflow-x-auto hide-scrollbar rounded-2xl bg-[#FFFCF7] p-2.5 border border-[#E8DCCB]/60">
                 <button
+                  v-for="(image, index) in galleryImages"
+                  :key="index"
                   type="button"
-                  @click="refreshRelated"
-                  class="text-sm font-semibold text-terracotta hover:text-orange-700"
-                >Refresh</button>
-              </div>
-              <div v-if="relatedProducts.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <router-link
-                  v-for="item in relatedProducts"
-                  :key="item.id"
-                  :to="getProductLink(item)"
-                  class="group block rounded-3xl border border-borderSoft bg-slate-50 p-4 transition hover:-translate-y-1 hover:shadow-lg"
+                  @click="activeImageIndex = index"
+                  class="group flex-shrink-0 w-20 h-20 flex items-center justify-center overflow-hidden rounded-2xl border transition-all duration-200 bg-white"
+                  :class="index === activeImageIndex ? 'border-terracotta ring-2 ring-terracotta/20 shadow-sm' : 'border-[#E8DCCB]/40 hover:border-terracotta/50'"
                 >
-                  <img :src="item.images?.[0] ?? item.image_url" :alt="item.name" class="h-32 w-full rounded-3xl object-cover" />
-                  <div class="mt-3">
-                    <h4 class="text-sm font-semibold text-espresso line-clamp-2">{{ item.name }}</h4>
-                    <p class="text-sm text-muted mt-2">Rp {{ formatCurrency(item.price) }}</p>
-                  </div>
-                </router-link>
+                  <img :src="image" :alt="`Gallery ${index + 1}`" class="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                </button>
               </div>
-              <p v-else class="text-sm text-muted">Tidak ada produk terkait saat ini.</p>
             </div>
           </div>
 
-          <!-- Right Column -->
+          <!-- Right Column: Purchasing & Seller Hub -->
           <div class="space-y-6">
-            <div class="rounded-3xl bg-surface p-6 shadow-sm border border-borderSoft">
+            <!-- Purchase Block -->
+            <div class="rounded-[2.25rem] bg-surface p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft">
               <div class="mb-4">
-                <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-[#2B1E16] leading-tight">{{ product?.name ?? 'Loading produk...' }}</h1>
-                
                 <!-- Badges -->
-                <div v-if="product?.badges?.length" class="mt-2.5 flex flex-wrap gap-1.5">
-                  <span v-for="badge in product.badges" :key="badge" class="inline-flex items-center rounded-lg border border-terracotta/20 bg-[#F8F1E7]/60 px-2.5 py-0.5 text-[9px] font-bold text-terracotta uppercase tracking-wider leading-none">
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <span class="inline-flex items-center rounded-lg border border-terracotta/20 bg-[#F8F1E7]/60 px-2.5 py-1 text-[9px] font-bold text-terracotta uppercase tracking-wider leading-none">
+                    {{ product?.category }}
+                  </span>
+                  <span v-if="product?.origin" class="inline-flex items-center rounded-lg border border-borderSoft bg-[#FAF6F0] px-2.5 py-1 text-[9px] font-bold text-[#8A7A6C] uppercase tracking-wider leading-none">
+                    {{ product?.origin }}
+                  </span>
+                  <span v-for="badge in product?.badges?.slice(0,2)" :key="badge" class="inline-flex items-center rounded-lg border border-[#E8DCCB]/30 bg-[#FFFCF7]/80 px-2.5 py-1 text-[9px] font-bold text-espresso uppercase tracking-wider leading-none">
                     {{ badge }}
                   </span>
                 </div>
 
-                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted">
-                  <div class="flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
-                    <span class="font-bold text-espresso">{{ product?.rating?.toFixed(1) }}</span>
+                <h1 class="text-2xl lg:text-3xl font-black tracking-tight text-[#2B1E16] leading-tight">{{ product?.name ?? 'Loading produk...' }}</h1>
+                
+                <!-- Ratings Summary -->
+                <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#8A7A6C]">
+                  <div class="flex items-center gap-1 bg-[#F8F1E7]/60 px-2 py-1 rounded-lg border border-terracotta/10">
+                    <svg class="w-3.5 h-3.5 text-amber-500 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
+                    <span class="font-black text-espresso">{{ product?.rating?.toFixed(1) }}</span>
                   </div>
                   <span class="text-slate-300/60">•</span>
                   <span>{{ product?.seller?.sold }}+ terjual</span>
                   <span class="text-slate-300/60">•</span>
-                  <span class="hover:text-espresso cursor-pointer underline-offset-4 hover:underline transition">{{ reviewCount }} ulasan</span>
+                  <span class="underline-offset-4 hover:underline transition font-bold">{{ reviewCount }} ulasan</span>
                 </div>
               </div>
 
-              <div class="mb-5 flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between">
+              <!-- Price & Stock -->
+              <div class="mb-5 py-4 border-y border-[#E8DCCB]/30 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p class="text-[10px] font-bold uppercase tracking-wider text-muted/60 mb-0.5">Harga</p>
-                  <p class="text-2xl sm:text-3xl font-extrabold tracking-tight text-terracotta">Rp {{ formatCurrency(displayPrice) }}</p>
+                  <p class="text-[9px] font-black uppercase tracking-wider text-[#8A7A6C] mb-0.5">Harga</p>
+                  <p class="text-3xl font-extrabold tracking-tight text-terracotta leading-none">Rp {{ formatCurrency(displayPrice) }}</p>
                 </div>
-                <div class="self-start sm:self-auto rounded-xl bg-emerald-50/60 px-3 py-1.5 text-[11px] font-bold text-emerald-700 border border-emerald-500/10 shadow-sm">Stok: {{ selectedStock }}</div>
+                <div class="rounded-xl bg-emerald-50/60 px-3.5 py-2 text-xs font-bold text-emerald-700 border border-emerald-500/10 shadow-sm">
+                  Stok: <span class="font-extrabold">{{ selectedStock }}</span>
+                </div>
               </div>
 
+              <!-- Variants & Options -->
               <div class="space-y-4">
                 <div v-if="variantOptions.length" class="mb-4">
-                  <label class="block text-[10px] font-bold uppercase tracking-wider text-muted/60 mb-2">Pilih Varian</label>
-                  <div class="flex flex-wrap gap-1.5">
+                  <label class="block text-[10px] font-black uppercase tracking-wider text-[#8A7A6C] mb-2">Pilih Varian / Ukuran</label>
+                  <div class="flex flex-wrap gap-2">
                     <button 
                       v-for="variant in variantOptions" 
                       :key="variant.value"
                       @click="selectedVariantId = variant.value"
-                      class="px-4 py-2 rounded-xl border text-xs font-bold transition-all duration-200"
-                      :class="selectedVariantId === variant.value ? 'border-terracotta bg-terracotta text-white shadow-sm' : 'border-borderSoft hover:border-terracotta/30 text-espresso bg-[#F8F1E7]/10'"
+                      class="px-4 py-2.5 rounded-xl border text-xs font-bold transition-all duration-200"
+                      :class="selectedVariantId === variant.value ? 'border-terracotta bg-[#B85C38] text-white shadow-sm' : 'border-[#E8DCCB]/60 hover:border-terracotta/40 text-espresso bg-[#F8F1E7]/10 hover:bg-[#F8F1E7]/30'"
                     >
                       {{ variant.label }}
                     </button>
                   </div>
                 </div>
 
-                <!-- Quantity Selector -->
-                <div class="flex flex-wrap items-center gap-3 pb-5">
+                <!-- Quantity -->
+                <div class="flex items-center gap-4 pb-4">
                   <div>
-                    <label class="block text-[10px] font-bold text-muted/60 mb-1.5 uppercase tracking-wider">Kuantitas</label>
-                    <div class="w-fit flex items-center gap-1.5 rounded-xl border border-borderSoft bg-surface p-1 shadow-sm">
-                      <button type="button" @click="decrementQuantity" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-muted transition hover:bg-slate-100 font-medium">-</button>
-                      <input type="number" v-model.number="quantity" min="1" :max="selectedStock" class="w-10 border-none bg-transparent text-center text-xs font-bold text-espresso p-0 focus:ring-0" />
-                      <button type="button" @click="incrementQuantity" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-muted transition hover:bg-slate-100 font-medium">+</button>
+                    <label class="block text-[10px] font-black text-[#8A7A6C] mb-1.5 uppercase tracking-wider">Kuantitas</label>
+                    <div class="w-fit flex items-center gap-1.5 rounded-xl border border-[#E8DCCB]/60 bg-white p-1 shadow-sm">
+                      <button type="button" @click="decrementQuantity" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-muted transition hover:bg-slate-100 font-bold">-</button>
+                      <input type="number" v-model.number="quantity" min="1" :max="selectedStock" class="w-10 border-none bg-transparent text-center text-xs font-black text-espresso p-0 focus:ring-0" />
+                      <button type="button" @click="incrementQuantity" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-50 text-muted transition hover:bg-slate-100 font-bold">+</button>
                     </div>
                   </div>
-                  <div class="text-[10px] text-muted/50 pt-5">Max {{ selectedStock }} pcs</div>
+                  <div class="text-[10px] text-[#8A7A6C]/60 pt-5">Maksimum {{ selectedStock }} pcs</div>
                 </div>
 
-                <!-- Buy/Cart Buttons -->
+                <!-- Action Buttons -->
                 <div class="flex flex-col gap-2.5">
                   <div class="grid gap-2.5 sm:grid-cols-2">
                     <button
                       type="button"
                       @click="addToCart"
                       :disabled="!canAddToCart"
-                      class="rounded-xl bg-[#2B1E16] px-5 py-3 text-xs font-bold text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
+                      class="rounded-xl bg-[#2B1E16] px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60 shadow-sm active:scale-[0.98]"
                     >
-                      Tambah ke Keranjang
+                      Keranjang
                     </button>
                     <button
                       type="button"
                       @click="buyNow"
                       :disabled="!canAddToCart"
-                      class="rounded-xl bg-terracotta px-5 py-3 text-xs font-bold text-white transition hover:bg-terracottaDark disabled:cursor-not-allowed disabled:opacity-60 shadow-sm"
+                      class="rounded-xl bg-terracotta px-5 py-3.5 text-xs font-black uppercase tracking-widest text-white transition hover:bg-terracottaDark disabled:cursor-not-allowed disabled:opacity-60 shadow-sm active:scale-[0.98]"
                     >
                       Beli Sekarang
                     </button>
@@ -241,11 +156,11 @@
                   <button
                     type="button"
                     @click="toggleWishlist"
-                    class="w-full rounded-xl border border-borderSoft bg-surface px-5 py-3 text-xs font-bold text-espresso transition hover:bg-slate-50 hover:border-slate-300"
+                    class="w-full rounded-xl border border-[#E8DCCB]/60 bg-[#FFFCF7] px-5 py-3 text-xs font-bold text-espresso transition hover:bg-[#F8F1E7]/20 hover:border-terracotta/30"
                   >
                     <span class="flex items-center justify-center gap-2">
                       <svg class="w-3.5 h-3.5" :class="isWishlisted ? 'fill-red-500 text-red-500' : 'fill-none text-slate-400'" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                      {{ isWishlisted ? 'Tersimpan' : 'Wishlist' }}
+                      {{ isWishlisted ? 'Tersimpan di Wishlist' : 'Tambah ke Wishlist' }}
                     </span>
                   </button>
                 </div>
@@ -255,7 +170,7 @@
                   v-if="product?.category === 'batik' || product?.category === 'fashion'"
                   type="button"
                   @click="openArModal"
-                  class="w-full relative overflow-hidden rounded-xl bg-[#2B1E16] px-4 py-3.5 text-left transition hover:shadow-md hover:-translate-y-0.5 group mt-2"
+                  class="w-full relative overflow-hidden rounded-xl bg-gradient-to-br from-[#2B1E16] to-[#453124] px-4 py-3.5 text-left transition hover:shadow-md hover:-translate-y-0.5 group mt-2 shadow border border-amber-500/20 active:scale-[0.98]"
                 >
                   <div class="absolute right-0 top-0 bottom-0 w-32 bg-white/5 skew-x-12 -mr-10 group-hover:bg-white/10 transition"></div>
                   <div class="flex items-center justify-between relative z-10">
@@ -264,82 +179,196 @@
                         <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                       </div>
                       <div>
-                        <p class="text-white font-bold text-xs">Coba dengan AR</p>
-                        <p class="text-white/60 text-[9px] mt-0.5">Lihat produk secara virtual sebelum membeli</p>
+                        <p class="text-white font-bold text-xs">Coba dengan AR Try-On</p>
+                        <p class="text-white/60 text-[9px] mt-0.5">Lihat kecocokan produk di badan secara virtual</p>
                       </div>
                     </div>
                     <svg class="w-4 h-4 text-white/50 group-hover:text-white transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
                   </div>
                 </button>
+              </div>
+            </div>
 
-
+            <!-- Seller Info (UMKM) - Integrated inside the right sidebar purchasing hub -->
+            <div class="rounded-[2.25rem] bg-surface p-6 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft flex flex-col">
+              <h3 class="text-xs font-black uppercase tracking-widest text-[#8A7A6C] mb-4">Informasi Pengrajin UMKM</h3>
+              <div class="flex items-center gap-4 mb-5">
+                <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-slate-400 overflow-hidden border border-[#E8DCCB] shadow-sm flex-shrink-0">
+                  <img v-if="product?.seller?.avatar_url" :src="product.seller.avatar_url" :alt="product.seller.name" class="w-full h-full object-cover" />
+                  <img v-else :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(product?.seller?.name || 'UMKM')}`" alt="Seller Avatar" class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h4 class="font-black text-espresso text-base flex items-center gap-1">
+                    {{ product?.seller?.name }}
+                    <svg class="w-4.5 h-4.5 text-blue-500 fill-current" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a.75.75 0 00-.708-.523H4.5a2.5 2.5 0 00-2.5 2.5v1.07a.75.75 0 00.523.708L5.5 8.164v3.672L2.523 12.79A.75.75 0 002 13.5v1.07a2.5 2.5 0 002.5 2.5h1.059a.75.75 0 00.708-.523L8.164 14.5h3.672l.946 2.977a.75.75 0 00.708.523H14.5a2.5 2.5 0 002.5-2.5v-1.07a.75.75 0 00-.523-.708L14.5 11.836V8.164l2.977-.946a.75.75 0 00.523-.708V5.43a2.5 2.5 0 00-2.5-2.5h-1.059a.75.75 0 00-.708.523L11.836 5.5H8.164L7.218 2.523zM9 9.5a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" clip-rule="evenodd"/></svg>
+                  </h4>
+                  <p class="text-xs text-muted flex items-center gap-1 mt-1">
+                    <svg class="w-3 h-3 text-terracotta" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+                    {{ product?.seller?.location }}
+                  </p>
+                </div>
               </div>
               
-              <!-- Share Info -->
-              <div class="mt-4 space-y-1.5 text-muted text-xs">
-                <button type="button" @click="shareProduct" class="inline-flex items-center gap-1.5 text-espresso hover:text-espresso font-bold">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.83-4H7.83A3 3 0 105 8c0 .19.02.38.06.56L3.3 10.4a3 3 0 101.2 1.2l1.8-1.54A3.02 3.02 0 008 11a3 3 0 103 3 2.99 2.99 0 00-1.68-.57l-1.8 1.54a3 3 0 10.55 1.18l1.75-1.5a3.02 3.02 0 001.83.64A3 3 0 1015 8z"/></svg>
-                  Bagikan produk
+              <div class="grid grid-cols-2 gap-3 mb-6 bg-[#FFFCF7] rounded-2xl p-3.5 border border-[#E8DCCB]/60 shadow-sm">
+                <div class="text-center">
+                  <p class="text-[9px] uppercase font-black text-[#8A7A6C] tracking-wider mb-1">Rating UMKM</p>
+                  <p class="text-sm font-black text-espresso flex items-center justify-center gap-1">
+                    <svg class="w-4 h-4 text-amber-500 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
+                    {{ product?.seller?.rating }}
+                  </p>
+                </div>
+                <div class="text-center border-l border-[#E8DCCB]/40">
+                  <p class="text-[9px] uppercase font-black text-[#8A7A6C] tracking-wider mb-1">Produk Terjual</p>
+                  <p class="text-sm font-black text-espresso">{{ product?.seller?.sold }}+</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 mt-auto">
+                <button @click="visitShop" class="w-full py-2.5 rounded-xl border border-terracotta text-terracotta font-bold text-xs hover:bg-terracotta hover:text-white transition shadow-sm active:scale-95">Kunjungi Toko</button>
+                <button @click="inviteCollaboration" class="w-full py-2.5 rounded-xl bg-[#2B1E16] text-white font-bold text-xs hover:bg-black transition shadow-sm active:scale-95">Ajak Kolaborasi</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Section: Cultural Story Editorial & Customer Reviews (2-Column Layout) -->
+        <div class="grid gap-8 grid-cols-[1.1fr_1fr] items-start mt-8">
+          <!-- Left: Cultural Story Editorial Section -->
+          <div class="rounded-[2.25rem] bg-surface p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft space-y-6">
+            <div class="border-b border-[#E8DCCB]/30 pb-4">
+              <span class="text-[10px] font-black uppercase tracking-widest text-terracotta">Nilai Warisan Budaya</span>
+              <h2 class="text-xl font-black text-espresso mt-1">Kisah, Filosofi & Material</h2>
+            </div>
+            
+            <div class="space-y-6">
+              <div>
+                <h4 class="text-xs font-black text-espresso uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
+                  Filosofi Budaya
+                </h4>
+                <p class="text-muted text-sm leading-relaxed text-justify">{{ product?.cultural_story }}</p>
+              </div>
+              
+              <div v-if="product?.motif_meaning" class="border-t border-[#E8DCCB]/20 pt-4">
+                <h4 class="text-xs font-black text-espresso uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
+                  Makna Motif
+                </h4>
+                <p class="text-muted text-sm leading-relaxed text-justify">{{ product?.motif_meaning }}</p>
+              </div>
+
+              <div class="border-t border-[#E8DCCB]/20 pt-4">
+                <h4 class="text-xs font-black text-espresso uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
+                  Deskripsi & Detail Produk
+                </h4>
+                <p class="text-espresso text-sm leading-relaxed whitespace-pre-line">{{ product?.description }}</p>
+              </div>
+
+              <div class="border-t border-[#E8DCCB]/20 pt-4">
+                <h4 class="text-xs font-black text-espresso uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 bg-terracotta rounded-full"></span>
+                  Material & Instruksi Perawatan
+                </h4>
+                <p class="text-muted text-sm leading-relaxed whitespace-pre-line bg-[#FFFCF7] p-4 rounded-2xl border border-[#E8DCCB]/40 font-medium">{{ product?.material_care }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Customer Reviews & Ratings List -->
+          <div class="rounded-[2.25rem] bg-surface p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft flex flex-col space-y-6">
+            <div class="mb-2 flex items-center justify-between border-b border-[#E8DCCB]/30 pb-4">
+              <div>
+                <span class="text-[10px] font-black uppercase tracking-widest text-[#8A7A6C]">Pendapat Pembeli</span>
+                <h3 class="text-xl font-black text-espresso mt-1">Ulasan Pelanggan</h3>
+                <p class="text-xs text-muted mt-1">{{ reviewCount }} ulasan terverifikasi</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  v-if="!hasUserReviewed"
+                  @click="openReviewModal"
+                  class="px-4 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition active:scale-95 shadow-sm"
+                >
+                  Tulis Ulasan
                 </button>
+                <button
+                  v-else
+                  disabled
+                  class="px-4 py-2.5 rounded-xl bg-slate-50 text-slate-400 font-bold text-xs cursor-not-allowed shadow-sm border border-slate-200"
+                >
+                  Sudah Diulas
+                </button>
+                <div class="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-100 shadow-sm">
+                  <svg class="w-4 h-4 text-amber-500 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
+                  <span class="font-black text-amber-700 text-sm">{{ product?.rating?.toFixed(1) }}</span>
+                </div>
               </div>
             </div>
 
-            <!-- Reviews (Desktop only) -->
-            <div class="rounded-3xl bg-surface p-6 shadow-sm border border-borderSoft">
-              <div class="mb-5 flex items-center justify-between">
-                <div>
-                  <h3 class="text-base sm:text-lg font-bold tracking-tight text-espresso">Ulasan Pelanggan</h3>
-                  <p class="text-sm text-muted mt-1">{{ reviewCount }} ulasan terverifikasi</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button
-                    v-if="!hasUserReviewed"
-                    @click="openReviewModal"
-                    class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition active:scale-95 shadow-sm"
-                  >
-                    Tulis Ulasan
-                  </button>
-                  <button
-                    v-else
-                    disabled
-                    class="px-4 py-2 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs cursor-not-allowed shadow-sm border border-slate-200"
-                  >
-                    Sudah Diulas
-                  </button>
-                  <div class="flex items-center gap-1 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-100">
-                  <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
-                  <span class="font-bold text-amber-700 text-sm">{{ product?.rating?.toFixed(1) }}</span>
-                </div>
-              </div>
-            </div>
-            <div v-if="reviews.length" class="space-y-4">
-                <div v-for="review in reviews.slice(0, 3)" :key="review.id" class="rounded-2xl border border-borderSoft bg-slate-50 p-4">
-                  <div class="flex items-center justify-between gap-4 mb-2">
-                    <div class="flex items-center gap-2">
-                      <img :src="getAvatarUrl(review)" class="w-8 h-8 rounded-full object-cover border border-borderSoft bg-slate-100" />
-                      <div>
-                        <p class="text-sm font-bold text-espresso">{{ review.author ?? review.user_name ?? 'Pembeli' }}</p>
-                        <p class="text-[10px] text-slate-400">{{ formatDate(review.date ?? review.created_at) }}</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-0.5 text-amber-400">
-                      <template v-for="i in 5" :key="i">
-                        <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" :class="i <= (review.rating ?? 0) ? 'text-amber-400' : 'text-slate-200'"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
-                      </template>
+            <!-- List of Reviews -->
+            <div v-if="reviews.length" class="space-y-4 max-h-[500px] overflow-y-auto pr-1 hide-scrollbar">
+              <div v-for="review in reviews.slice(0, 5)" :key="review.id" class="rounded-2xl border border-borderSoft bg-[#FFFCF7]/30 p-4 shadow-sm">
+                <div class="flex items-center justify-between gap-4 mb-2">
+                  <div class="flex items-center gap-2">
+                    <img :src="getAvatarUrl(review)" class="w-8 h-8 rounded-full object-cover border border-borderSoft bg-white" />
+                    <div>
+                      <p class="text-sm font-bold text-espresso">{{ review.author ?? review.user_name ?? 'Pembeli' }}</p>
+                      <p class="text-[10px] text-slate-400">{{ formatDate(review.date ?? review.created_at) }}</p>
                     </div>
                   </div>
-                  <p class="text-espresso text-sm">{{ review.comment ?? review.message ?? 'Ulasan tidak tersedia.' }}</p>
-                  <img
-                    v-if="review.image_url"
-                    :src="review.image_url"
-                    alt="Foto ulasan"
-                    class="mt-3 w-full max-w-[220px] rounded-xl border border-borderSoft/60 object-cover"
-                  />
+                  <div class="flex items-center gap-0.5 text-amber-400">
+                    <template v-for="i in 5" :key="i">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" :class="i <= (review.rating ?? 0) ? 'text-amber-400 fill-current' : 'text-slate-200 fill-none'"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.363 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 00-.363-1.118L2.098 9.377c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.95z"/></svg>
+                    </template>
+                  </div>
+                </div>
+                <p class="text-espresso text-sm leading-relaxed">{{ review.comment ?? review.message ?? 'Ulasan tidak tersedia.' }}</p>
+                <img
+                  v-if="review.image_url"
+                  :src="review.image_url"
+                  alt="Foto ulasan"
+                  class="mt-3 w-full max-w-[220px] rounded-xl border border-borderSoft/60 object-cover shadow-sm"
+                />
+              </div>
+            </div>
+            <p v-else class="text-sm text-muted text-center py-8 bg-[#FFFCF7]/30 rounded-2xl border border-borderSoft/60 border-dashed">Belum ada ulasan untuk produk ini.</p>
+          </div>
+        </div>
+
+        <!-- Related Products Section (Full Width) -->
+        <div class="rounded-[2.25rem] bg-surface p-8 shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-borderSoft mt-8">
+          <div class="flex items-center justify-between mb-6 border-b border-[#E8DCCB]/30 pb-4">
+            <div>
+              <span class="text-[10px] font-black uppercase tracking-widest text-terracotta">Rekomendasi Kami</span>
+              <h3 class="text-xl font-black text-espresso mt-1">Produk Terkait</h3>
+            </div>
+            <button
+              type="button"
+              @click="refreshRelated"
+              class="text-xs font-black uppercase tracking-widest text-terracotta hover:text-orange-700 bg-[#F8F1E7]/60 border border-terracotta/20 px-4 py-2 rounded-xl transition active:scale-95"
+            >Refresh</button>
+          </div>
+          
+          <div v-if="relatedProducts.length" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <router-link
+              v-for="item in relatedProducts"
+              :key="item.id"
+              :to="getProductLink(item)"
+              class="group block rounded-3xl border border-[#E8DCCB]/40 bg-[#FFFCF7]/30 p-4 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:bg-white"
+            >
+              <div class="relative overflow-hidden rounded-2xl bg-white border border-[#E8DCCB]/20 aspect-square">
+                <img :src="item.images?.[0] ?? item.image_url" :alt="item.name" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              </div>
+              <div class="mt-3.5">
+                <h4 class="text-sm font-black text-espresso line-clamp-2 leading-snug group-hover:text-terracotta transition-colors duration-200 h-10">{{ item.name }}</h4>
+                <div class="mt-2.5 flex items-center justify-between">
+                  <p class="text-sm font-extrabold text-terracotta">Rp {{ formatCurrency(item.price) }}</p>
+                  <span class="text-[9px] font-bold text-[#8A7A6C] bg-[#FAF6F0] px-2 py-0.5 rounded border border-borderSoft">{{ item.origin }}</span>
                 </div>
               </div>
-              <p v-else class="text-sm text-muted">Belum ada ulasan untuk produk ini.</p>
-            </div>
+            </router-link>
           </div>
+          <p v-else class="text-sm text-muted text-center py-8">Tidak ada produk terkait saat ini.</p>
         </div>
       </div>
 
@@ -616,54 +645,151 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <div v-if="showArModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 overflow-y-auto">
       <div class="w-full max-w-md rounded-[2rem] bg-surface shadow-2xl overflow-hidden flex flex-col p-6 relative border border-borderSoft/60 animate-fade-in">
         <!-- Close Button -->
-        <button type="button" @click="closeArModal" class="absolute top-4 right-4 rounded-full bg-slate-100 p-2 text-espresso hover:bg-slate-200 transition z-30">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
+        <div class="absolute top-4 right-4 flex items-center gap-2 z-30">
+          <button type="button" @click="closeArModal" class="rounded-full bg-slate-100 p-2 text-espresso hover:bg-slate-200 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
 
-        <div class="mb-4 pr-10">
+        <div class="mb-4 pr-20">
           <h2 class="text-xl font-black text-[#2B1E16] leading-none">AI AR Try-On</h2>
           <p class="text-muted text-xs mt-1.5 leading-relaxed">
             Posisikan tubuh Anda di depan kamera untuk melihat pakaian secara virtual.
           </p>
         </div>
 
+
+
         <!-- Live Camera / Upload Foto Canvas -->
         <div class="bg-slate-950 relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-inner">
-          <!-- Video Feed (Hidden, used as source for MediaPipe) -->
+          <!-- Video Feed (Hidden, used as source for MediaPipe fallback) -->
           <video ref="videoElement" autoplay playsinline class="hidden"></video>
           
-          <!-- Canvas (Shows video + AR filter real-time) -->
+          <!-- Canvas for MediaPipe live camera & uploaded photo overlay -->
           <canvas ref="canvasElement" class="absolute inset-0 w-full h-full object-cover"></canvas>
 
-          <!-- Loading State -->
-          <div v-if="isInitializingAR" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm text-white p-4 text-center">
-            <svg class="w-10 h-10 animate-spin text-terracotta mb-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-            <p class="font-bold text-sm">Menyiapkan Fitur AR...</p>
-            <p class="text-white/60 text-[10px] mt-1 leading-relaxed">Mengunduh aset model AI & mendeteksi postur tubuh Anda</p>
+          <!-- Loading State (Smooth scanning animation & pulsing ring) -->
+          <div v-if="isInitializingAR" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/75 backdrop-blur-sm text-white p-6 text-center">
+            <!-- Pulsing Ring -->
+            <div class="relative w-20 h-20 mb-6 flex items-center justify-center">
+              <div class="absolute inset-0 rounded-full border-4 border-terracotta/30 animate-ping"></div>
+              <div class="absolute w-16 h-16 rounded-full border-4 border-terracotta border-t-transparent animate-spin"></div>
+              <svg class="w-8 h-8 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            
+            <!-- Scanning Line -->
+            <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-terracotta to-transparent opacity-80 animate-scan"></div>
+            
+            <p class="font-black text-sm uppercase tracking-wider text-[#F8F1E7]">Menyiapkan Fitur AR</p>
+            <p class="text-slate-300 text-[10px] mt-2 max-w-[250px] leading-relaxed">
+              Mengunduh modul deteksi postur AI dan menghubungkan perangkat kamera Anda...
+            </p>
+            
+            <!-- Dynamic Tip -->
+            <div class="mt-6 bg-[#FFFCF7]/10 border border-white/10 px-3 py-2 rounded-xl text-[9px] text-[#E8C97A] max-w-[240px]">
+              <strong>Tips:</strong> Pastikan Anda berada di area dengan pencahayaan yang cukup.
+            </div>
           </div>
           
-          <div v-if="!isCameraReady && !isCameraDenied && !isInitializingAR" class="absolute inset-0 flex items-center justify-center z-10 bg-slate-955">
+          <div v-if="!isCameraReady && !isCameraDenied && !isInitializingAR && !mediaPipeLoadError && !arTimeoutActive" class="absolute inset-0 flex items-center justify-center z-10 bg-slate-950">
             <p class="text-white/80 text-xs font-semibold animate-pulse">Menghubungkan Kamera...</p>
           </div>
+
+          <!-- Timeout or Loading Error Fallback -->
+          <div v-if="(mediaPipeLoadError || arTimeoutActive) && !isInitializingAR" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-slate-950/95 text-white animate-fade-in">
+            <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-500 mb-3">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <p class="font-black text-sm mb-1">{{ mediaPipeLoadError ? 'Gagal Memuat Modul AR' : 'Koneksi AR Lambat' }}</p>
+            <p class="text-slate-400 text-[10px] leading-relaxed mb-4 max-w-[280px]">
+              {{ mediaPipeLoadError ? 'Modul AI tidak dapat diunduh karena kendala jaringan. Coba gunakan upload foto atau analisis gaya AI.' : 'Koneksi kamera atau modul AR memerlukan waktu lebih lama dari biasanya.' }}
+            </p>
+            
+            <div class="flex flex-col gap-2 w-full max-w-[220px]">
+              <button 
+                type="button" 
+                @click="triggerArFileUpload" 
+                class="w-full py-2 bg-white text-espresso font-bold text-xs rounded-xl hover:bg-slate-100 transition active:scale-95 shadow text-[#2B1E16]"
+              >
+                Gunakan Upload Foto
+              </button>
+              <button 
+                type="button" 
+                @click="showAiStylingAnalysis" 
+                class="w-full py-2 bg-gradient-to-r from-amber-500 to-terracotta text-white font-bold text-xs rounded-xl hover:opacity-90 transition active:scale-95 shadow-sm"
+              >
+                Coba AI Styling Analysis
+              </button>
+              <button 
+                type="button" 
+                @click="retryArConnection" 
+                class="w-full py-2 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-700 transition active:scale-95 border border-slate-700"
+              >
+                Coba Hubungkan Ulang
+              </button>
+            </div>
+          </div>
           
-          <div v-if="isCameraDenied" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-slate-950/95 text-white">
-            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 mb-3">
+          <!-- Camera Denied State -->
+          <div v-if="isCameraDenied && !mediaPipeLoadError && !arTimeoutActive" class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center z-20 bg-slate-950/95 text-white animate-fade-in">
+            <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 mb-3 animate-bounce">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
-            <p class="font-bold text-sm mb-1">Akses Kamera Ditolak</p>
-            <p class="text-slate-400 text-[10px] leading-relaxed mb-3">Mohon izinkan akses kamera pada pengaturan browser Anda untuk mencoba fitur ini.</p>
+            <p class="font-black text-sm mb-1">Akses Kamera Diperlukan</p>
+            <p class="text-slate-300 text-[10px] leading-relaxed mb-4 max-w-[280px]">
+              Klik ikon **Gembok/Info (🔒)** di bilah alamat browser Anda (URL bar) lalu ubah opsi Kamera menjadi **Izinkan (Allow)**, kemudian muat ulang halaman.
+            </p>
+            
+            <div class="flex flex-col gap-2 w-full max-w-[220px]">
+              <button 
+                type="button" 
+                @click="triggerArFileUpload" 
+                class="w-full py-2.5 bg-white text-espresso font-bold text-xs rounded-xl hover:bg-slate-100 transition active:scale-95 shadow text-[#2B1E16]"
+              >
+                Gunakan Upload Foto
+              </button>
+              <button 
+                type="button" 
+                @click="showAiStylingAnalysis" 
+                class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-terracotta text-white font-bold text-xs rounded-xl hover:opacity-90 transition active:scale-95 shadow-sm"
+              >
+                Coba AI Styling Analysis
+              </button>
+              <button 
+                type="button" 
+                @click="retryArConnection" 
+                class="w-full py-2.5 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-700 transition active:scale-95 border border-slate-700"
+              >
+                Coba Akses Lagi
+              </button>
+            </div>
+          </div>
+
+          <!-- AI Styling Analysis Panel Overlay -->
+          <div v-if="showStylingPanel" class="absolute inset-0 z-30 flex flex-col justify-between bg-[#1A110B]/95 p-5 text-white animate-fade-in">
+            <div class="space-y-4 overflow-y-auto max-h-[85%] pr-1 hide-scrollbar">
+              <div class="flex items-center gap-2 border-b border-[#E8DCCB]/25 pb-3">
+                <span class="text-lg">✨</span>
+                <h4 class="font-bold text-sm text-[#E8C97A] uppercase tracking-wider">AI Styling Analysis</h4>
+              </div>
+              <div class="text-[11px] leading-relaxed space-y-2 text-slate-200">
+                <p class="font-bold text-white text-[12px] mb-1.5">{{ product?.name }}</p>
+                <div v-html="renderMarkdown(getAiStylingTips)"></div>
+              </div>
+            </div>
             <button 
               type="button" 
-              @click="triggerArFileUpload" 
-              class="px-4 py-2 bg-white text-espresso font-bold text-xs rounded-xl hover:bg-slate-100 transition active:scale-95 shadow text-[#2B1E16]"
+              @click="showStylingPanel = false" 
+              class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-terracotta text-white font-bold text-xs rounded-xl hover:opacity-90 transition active:scale-95 mt-4"
             >
-              Atau Gunakan Upload Foto
+              Kembali ke Menu AR
             </button>
           </div>
         </div>
@@ -908,15 +1034,20 @@
       </form>
     </div>
   </div>
+</div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useCartStore } from '@/stores/cartStore';
 import { useNotificationStore } from '@/stores/notificationStore';
 import { useWishlistStore } from '@/stores/wishlistStore';
 import Navbar from '@/pages/landing/partials/Navbar.vue';
+import { marked } from 'marked';
+
+marked.setOptions({ gfm: true, breaks: true });
+const renderMarkdown = (text) => marked.parse(text || '');
 
 const route = useRoute();
 const router = useRouter();
@@ -970,6 +1101,22 @@ const stream = ref(null);
 const isCameraReady = ref(false);
 const isCameraDenied = ref(false);
 const isInitializingAR = ref(false);
+const mediaPipeLoadError = ref(false);
+const arTimeoutActive = ref(false);
+const showStylingPanel = ref(false);
+
+const getAiStylingTips = computed(() => {
+  if (!product.value) return '';
+  const category = product.value.category;
+  const name = product.value.name;
+  if (category === 'batik') {
+    return `**Rekomendasi Padu Padan AI:**\n\n• **Bawahan:** Celana Chinos warna beige/khaki untuk kesan hangat, atau Celana Bahan hitam slim-fit untuk acara formal.\n• **Alas Kaki:** Loafers kulit cokelat gelap atau Oxford shoes hitam.\n• **Aksesoris:** Jam tangan kulit cokelat dengan strap minimalis untuk melengkapi motif heritage ${name}.`;
+  } else if (category === 'kerajinan' || category === 'dekorasi') {
+    return `**Rekomendasi Penempatan & Gaya:**\n\n• **Penempatan:** Letakkan di ruang tamu dengan pencahayaan hangat (warm white) untuk menonjolkan tekstur serat alamnya.\n• **Kombinasi:** Padukan dengan furnitur kayu jati atau tanaman indoor hijau (seperti Monstera) untuk nuansa tropis modern yang menyatu dengan keindahan ${name}.`;
+  } else {
+    return `**Rekomendasi Gaya AI:**\n\n• **Kombinasi:** Sangat serasi dipadukan dengan outfit bernuansa earthy-tone (seperti terakota, sage, atau putih gading).\n• **Acara:** Cocok digunakan pada acara kasual terhormat, gathering komunitas kreatif, atau sebagai hadiah bernilai seni tinggi.`;
+  }
+});
 
 // Review state
 const hoveredStar = ref(0);
@@ -1625,18 +1772,75 @@ const submitReview = async () => {
 // AR Try-On Functions
 const openArModal = async () => {
   showArModal.value = true;
-  await initProductImage();
-  await loadMediaPipe();
-  await startCamera();
+  mediaPipeLoadError.value = false;
+  arTimeoutActive.value = false;
+  showStylingPanel.value = false;
+  isInitializingAR.value = true;
+  isUploadedPhotoActive.value = false;
+  uploadedPhotoSrc.value = null;
+  smoothedLandmarks = null;
+
+  // Set timeout max 20 detik untuk inisialisasi modul AR
+  const initTimeout = setTimeout(() => {
+    if (isInitializingAR.value && !isCameraReady.value) {
+      console.warn('[AR] Inisialisasi terlalu lama.');
+      arTimeoutActive.value = true;
+      isInitializingAR.value = false;
+      notificationStore.warning('Koneksi AR lambat. Anda dapat menggunakan opsi Upload Foto.');
+    }
+  }, 20000);
+
+  try {
+    await initProductImage();
+    await loadMediaPipe();
+    await startCamera();
+    clearTimeout(initTimeout);
+    isCameraReady.value = true;
+    isInitializingAR.value = false;
+    notificationStore.success('Kamera AR berhasil terhubung!');
+  } catch (err) {
+    console.error('AR Modal Init Failed:', err);
+    isInitializingAR.value = false;
+    clearTimeout(initTimeout);
+    
+    const errMsg = String(err?.message || err || '');
+    if (errMsg.includes('Permission') || errMsg.includes('NotAllowed') || errMsg.includes('denied')) {
+      isCameraDenied.value = true;
+      notificationStore.error('Akses kamera ditolak. Izinkan kamera di pengaturan browser Anda.');
+    } else {
+      mediaPipeLoadError.value = true;
+      notificationStore.error('Gagal memuat modul AR: ' + (errMsg.length > 100 ? errMsg.substring(0, 100) + '...' : errMsg));
+    }
+  }
 };
 
-const closeArModal = () => {
+const closeArModal = async () => {
   stopCamera();
   showArModal.value = false;
   isInitializingAR.value = false;
-  smoothedLandmarks = null;
+  isCameraReady.value = false;
+  isCameraDenied.value = false;
+  mediaPipeLoadError.value = false;
+  arTimeoutActive.value = false;
+  showStylingPanel.value = false;
+};
+
+const showAiStylingAnalysis = () => {
+  showStylingPanel.value = true;
+};
+
+
+
+const retryArConnection = async () => {
+  mediaPipeLoadError.value = false;
+  arTimeoutActive.value = false;
+  isInitializingAR.value = true;
   isUploadedPhotoActive.value = false;
   uploadedPhotoSrc.value = null;
+  smoothedLandmarks = null;
+  
+  stopCamera();
+  await openArModal();
 };
 
 const triggerArFileUpload = () => {
@@ -1905,13 +2109,27 @@ const loadScript = (src) => {
   });
 };
 
+const loadScriptWithTimeout = (src, timeoutMs = 10000) => {
+  return Promise.race([
+    loadScript(src),
+    new Promise((_, reject) => setTimeout(() => reject(new Error(`Timeout loading script: ${src}`)), timeoutMs))
+  ]);
+};
+
 const loadMediaPipe = async () => {
   isInitializingAR.value = true;
+  mediaPipeLoadError.value = false;
   try {
-    await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js');
-    await loadScript('https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js');
+    await Promise.all([
+      loadScriptWithTimeout('https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js', 10000),
+      loadScriptWithTimeout('https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js', 10000)
+    ]);
   } catch (err) {
     console.error('Failed to load MediaPipe:', err);
+    mediaPipeLoadError.value = true;
+    isInitializingAR.value = false;
+    notificationStore.error('Gagal memuat modul AI AR Try-On (Timeout CDN).');
+    throw err;
   }
 };
 
@@ -2163,6 +2381,7 @@ const stopCamera = () => {
 watch(
   () => route.params.id,
   async () => {
+    closeArModal();
     await loadProduct();
   }
 );
@@ -2183,6 +2402,10 @@ onMounted(() => {
   if (route.query.review === 'true') {
     openReviewModal();
   }
+});
+
+onBeforeUnmount(() => {
+  closeArModal();
 });
 </script>
 
@@ -2231,5 +2454,13 @@ onMounted(() => {
 }
 .animate-pulse-slow {
   animation: pulse-slow 3s ease-in-out infinite;
+}
+@keyframes scan {
+  0% { top: 0%; }
+  50% { top: 100%; }
+  100% { top: 0%; }
+}
+.animate-scan {
+  animation: scan 3s linear infinite;
 }
 </style>

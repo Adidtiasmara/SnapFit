@@ -19,6 +19,13 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <!-- Auto-save indicator -->
+          <transition name="fade">
+            <span v-if="showAutoSave" class="text-[9px] font-bold text-[#0F8A4B] bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" /></svg>
+              Tersimpan
+            </span>
+          </transition>
           <!-- Live Indicator & Close Room Button -->
           <button v-if="isCreator" @click="closeRoom" class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 text-[9px] font-bold uppercase tracking-wider rounded-xl transition-colors">
             Tutup Room
@@ -234,13 +241,15 @@ const hasContent = ref(false);
 const brushColor = ref('#B85C38');
 const brushSize = ref(4);
 const isMobileChatOpen = ref(false);
+const showAutoSave = ref(false);
 
 let canvas = null;
 let undoStack = [];
 let redoStack = [];
 let pollingInterval = null;
 let lastCanvasLoadTimestamp = null;
-let isLocallyModifying = false; // Flag to prevent server load during local modifications
+let isLocallyModifying = false; // Flag agar polling tidak overwrite perubahan lokal
+let saveDebounceTimer = null; // Debounce timer untuk auto-save ke server
 
 const isCreator = computed(() => room.value?.creator_id === user.value?.id);
 
@@ -590,27 +599,35 @@ const fetchMessages = async () => {
 
 /* ─── REALTIME COLLABORATION / CANVAS SYNC FUNCTIONS ─── */
 
-const uploadCanvasDataToServer = async () => {
+// Debounced save: menunggu 1 detik setelah terakhir mengedit sebelum upload ke server
+const uploadCanvasDataToServer = () => {
   if (!canvas) return;
-  try {
-    const token = localStorage.getItem('token');
-    const canvasJSON = JSON.stringify(canvas.toJSON());
-    const res = await fetch(`/api/v1/cocreate/rooms/${route.params.id}/canvas`, {
-      method: 'POST',
-      headers: { 
-        'Authorization': `Bearer ${token}`, 
-        'Content-Type': 'application/json', 
-        'Accept': 'application/json' 
-      },
-      body: JSON.stringify({ canvas_data: canvasJSON }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      lastCanvasLoadTimestamp = data.canvas_updated_at;
+  // Cancel debounce sebelumnya
+  if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const canvasJSON = JSON.stringify(canvas.toJSON());
+      const res = await fetch(`/api/v1/cocreate/rooms/${route.params.id}/canvas`, {
+        method: 'POST',
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+          'Accept': 'application/json' 
+        },
+        body: JSON.stringify({ canvas_data: canvasJSON }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        lastCanvasLoadTimestamp = data.canvas_updated_at;
+        // Tampilkan notifikasi auto-save
+        showAutoSave.value = true;
+        setTimeout(() => { showAutoSave.value = false; }, 2000);
+      }
+    } catch (e) {
+      console.error('Failed to save canvas state:', e);
     }
-  } catch (e) {
-    console.error('Failed to save canvas state:', e);
-  }
+  }, 1000); // Debounce 1 detik
 };
 
 const fetchCanvasFromServer = async () => {
@@ -623,7 +640,7 @@ const fetchCanvasFromServer = async () => {
     if (res.ok) {
       const data = await res.json();
       
-      // Update local canvas only if server state is newer
+      // Update local canvas hanya jika server state lebih baru
       if (data.canvas_updated_at && data.canvas_updated_at !== lastCanvasLoadTimestamp) {
         lastCanvasLoadTimestamp = data.canvas_updated_at;
         
@@ -643,13 +660,55 @@ const fetchCanvasFromServer = async () => {
   }
 };
 
+// Hapus objek yang terpilih (untuk keyboard shortcut Delete/Backspace)
+const deleteSelected = () => {
+  if (!canvas) return;
+  const active = canvas.getActiveObjects();
+  if (active.length > 0) {
+    active.forEach(obj => canvas.remove(obj));
+    canvas.discardActiveObject();
+    canvas.renderAll();
+    hasContent.value = canvas.getObjects().length > 0;
+    saveState();
+    uploadCanvasDataToServer();
+  }
+};
+
+// Handler keyboard shortcuts global
+const handleKeyboard = (e) => {
+  // Jangan tangkap shortcut saat user mengetik di input/textarea
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  // Ctrl+Z = Undo
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  }
+  // Ctrl+Y atau Ctrl+Shift+Z = Redo
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+    e.preventDefault();
+    redo();
+  }
+  // Delete / Backspace = Hapus objek terpilih
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    // Pastikan tidak sedang mengedit teks di canvas
+    if (canvas && !canvas.getActiveObject()?.isEditing) {
+      e.preventDefault();
+      deleteSelected();
+    }
+  }
+};
+
 onMounted(() => {
   fetchRoomDetail();
   initCanvas();
   fetchMessages();
   fetchCanvasFromServer();
 
-  // Polling setup: check every 3 seconds
+  // Register keyboard shortcuts
+  window.addEventListener('keydown', handleKeyboard);
+
+  // Polling: cek setiap 3 detik untuk sinkronisasi real-time
   pollingInterval = setInterval(() => {
     fetchMessages();
     fetchCanvasFromServer();
@@ -658,6 +717,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (pollingInterval) clearInterval(pollingInterval);
+  if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
+  window.removeEventListener('keydown', handleKeyboard);
 });
 </script>
 

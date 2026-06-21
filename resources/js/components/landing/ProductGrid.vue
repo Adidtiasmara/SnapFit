@@ -88,11 +88,8 @@
         <!-- AI Studio -->
         <div
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-terracotta transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-terracotta/10 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-            </svg>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-[#E8DCCB]/60 shadow-sm bg-slate-50">
+            <img :src="'/images/features/studio_ai.png'" class="w-full h-full object-cover" />
           </div>
           <div>
             <h3 class="text-[10px] sm:text-xs md:text-sm font-black text-espresso mb-0.5 leading-tight">Studio Produk AI</h3>
@@ -103,13 +100,8 @@
         <!-- AR Try-On -->
         <div
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-indigo/10 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-indigo" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-[#E8DCCB]/60 shadow-sm bg-slate-50">
+            <img :src="'/images/features/ar_tryon.png'" class="w-full h-full object-cover" />
           </div>
           <div>
             <h3 class="text-[10px] sm:text-xs md:text-sm font-black text-espresso mb-0.5 leading-tight">AR Try-On</h3>
@@ -120,11 +112,8 @@
         <!-- Co-Create Room -->
         <div
           class="bg-surface border border-borderSoft p-3 sm:p-4 rounded-2xl shadow-sm hover:shadow-md hover:border-olive transition-all duration-300 flex flex-col items-center text-center justify-center md:flex-row md:items-center md:text-left md:justify-start cursor-pointer w-full min-h-[96px] md:min-h-[82px] gap-2 md:gap-4">
-          <div class="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-xl bg-olive/10 flex items-center justify-center shrink-0">
-            <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden shrink-0 border border-[#E8DCCB]/60 shadow-sm bg-slate-50">
+            <img :src="'/images/features/cocreate.png'" class="w-full h-full object-cover" />
           </div>
           <div>
             <h3 class="text-[10px] sm:text-xs md:text-sm font-black text-espresso mb-0.5 leading-tight">Ruang Co-Create</h3>
@@ -157,17 +146,15 @@
 
 
 
-      <!-- Loading State with Better Skeleton -->
-      <div v-if="isLoading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        <div v-for="i in 10" :key="i" class="animate-pulse">
-          <div class="h-[180px] bg-gray-200 rounded-3xl mb-4"></div>
-          <div class="space-y-3">
-            <div class="h-5 bg-gray-200 rounded-lg w-3/4"></div>
-            <div class="h-4 bg-gray-100 rounded-lg w-1/2"></div>
-            <div class="flex gap-2">
-              <div class="h-8 bg-gray-200 rounded-lg w-24"></div>
-              <div class="h-8 bg-gray-100 rounded-lg flex-1"></div>
-            </div>
+      <!-- Loading State with Shimmering Skeleton -->
+      <div v-if="isLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
+        <div v-for="i in 12" :key="i" class="space-y-3 p-3 bg-surface border border-borderSoft/40 rounded-2xl">
+          <div class="aspect-square w-full skeleton rounded-xl"></div>
+          <div class="space-y-2.5 mt-2">
+            <div class="h-4 skeleton w-5/6"></div>
+            <div class="h-3 skeleton w-2/3"></div>
+            <div class="h-3 skeleton w-1/2"></div>
+            <div class="h-5 skeleton w-1/3 mt-3"></div>
           </div>
         </div>
       </div>
@@ -175,7 +162,7 @@
       <!-- Products Grid -->
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-5">
         <div v-for="(product, index) in filteredProducts" :key="product.id" @click="viewProductDetail(product)"
-          class="bg-surface border border-borderSoft shadow-sm hover:border-terracotta hover:shadow-xl transition-all duration-300 rounded-2xl group overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1 relative"
+          class="stagger-item bg-surface border border-borderSoft shadow-sm hover:border-terracotta hover:shadow-xl transition-all duration-300 rounded-2xl group overflow-hidden flex flex-col cursor-pointer hover:-translate-y-1 relative"
           data-aos="fade-up" :data-aos-delay="(index % 6) * 50">
 
           <!-- Image Section -->

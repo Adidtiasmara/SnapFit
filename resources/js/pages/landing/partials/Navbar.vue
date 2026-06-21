@@ -43,8 +43,8 @@
         <div class="hidden md:flex relative items-center search-container z-50">
           <input v-model="searchQuery" @input="debouncedSearch" @focus="showSearchResults = searchQuery.length > 0"
             type="text" placeholder="Cari produk khas Indonesia..."
-            class="w-[320px] bg-surface/50 border border-borderSoft/80 text-espresso text-xs rounded-2xl pl-11 pr-4 py-2 outline-none focus:border-terracotta focus:bg-surface focus:ring-4 focus:ring-terracotta/20 transition-all placeholder-slate-400 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]" />
-          <svg class="w-4 h-4 text-muted absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor"
+            class="w-[320px] bg-[#FFFCF7] border border-[#E8DCCB] text-espresso text-xs rounded-2xl pl-11 pr-4 py-2 outline-none focus:border-terracotta focus:bg-white focus:ring-4 focus:ring-terracotta/15 transition-all placeholder-[#6F6259]/65 font-medium shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:border-terracotta/40" />
+          <svg class="w-4 h-4 text-[#8A7A6C] absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor"
             viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -55,7 +55,7 @@
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
             leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
             <div v-if="showSearchResults"
-              class="absolute top-full mt-2 w-full bg-surface rounded-2xl shadow-xl border border-borderSoft overflow-hidden z-[60]">
+              class="absolute top-full mt-2 w-full bg-[#FFFCF7] rounded-2xl shadow-xl border border-[#E8DCCB] overflow-hidden z-[60]">
               <div v-if="isSearching" class="p-4 text-center text-xs text-muted font-bold">
                 <svg class="animate-spin h-5 w-5 mx-auto text-terracotta mb-2" xmlns="http://www.w3.org/2000/svg"
                   fill="none" viewBox="0 0 24 24">
@@ -72,9 +72,9 @@
               <div v-else class="max-h-[60vh] overflow-y-auto hide-scrollbar">
                 <a v-for="item in searchResults" :key="item.id" href="javascript:void(0)"
                   @click.prevent="goToProduct(item)"
-                  class="flex items-center gap-3 p-3 hover:bg-sand transition-colors border-b border-gray-50 last:border-0">
+                  class="flex items-center gap-3 p-3 hover:bg-[#F8F1E7] transition-colors border-b border-[#E8DCCB]/30 last:border-0">
                   <img :src="item.images?.[0] ?? item.image_url ?? '/images/placeholder.png'"
-                    class="w-10 h-10 rounded-lg object-cover bg-gray-100 flex-shrink-0" />
+                    class="w-10 h-10 rounded-lg object-cover bg-white border border-[#E8DCCB]/20 flex-shrink-0" />
                   <div class="flex-1 min-w-0">
                     <p class="text-xs font-bold text-espresso truncate">{{ item.name }}</p>
                     <p class="text-[10px] text-terracotta font-bold mt-0.5">Rp {{ Number(item.price ??
@@ -88,6 +88,16 @@
 
         <!-- Icons Container -->
         <div class="flex items-center gap-4">
+          <!-- Mobile Search Toggle Button -->
+          <button @click="toggleMobileSearch"
+            class="md:hidden p-1.5 rounded-lg hover:bg-sand transition-colors group flex items-center justify-center mobile-search-toggle"
+            title="Cari">
+            <svg class="w-4 h-4 text-[#8A7A6C] group-hover:text-terracotta transition-colors" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
 
           <!-- Notification Bell (Always Visible) -->
         <div class="relative notification-menu">
@@ -385,6 +395,70 @@
       </div>
     </nav>
 
+    <!-- Mobile Search Panel (Slide down) -->
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0 -translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-4"
+    >
+      <div v-if="showMobileSearch" class="md:hidden px-4 pb-3 pt-1 border-t border-[#E8DCCB]/40 search-container bg-[rgba(255,250,243,0.95)] backdrop-blur-[14px] absolute top-full left-0 right-0 shadow-lg z-40">
+        <div class="relative flex items-center">
+          <input v-model="searchQuery" @input="debouncedSearch" @focus="showSearchResults = searchQuery.length > 0"
+            ref="mobileSearchInput"
+            type="text" placeholder="Cari produk khas Indonesia..."
+            class="w-full bg-[#FFFCF7] border border-[#E8DCCB] text-espresso text-xs rounded-xl pl-11 pr-10 py-2 outline-none focus:border-terracotta focus:ring-4 focus:ring-terracotta/10 transition-all placeholder-[#6F6259]/65 font-medium shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]" />
+          <svg class="w-4 h-4 text-[#8A7A6C] absolute left-3.5 pointer-events-none" fill="none" stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <button v-if="searchQuery" @click="clearSearch" class="absolute right-3 p-1 text-[#8A7A6C] hover:text-espresso rounded-full hover:bg-[#F8F1E7] transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Mobile Search Results Dropdown -->
+        <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 translate-y-1"
+          enter-to-class="opacity-100 translate-y-0" leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
+          <div v-if="showSearchResults"
+            class="absolute left-4 right-4 mt-2 bg-[#FFFCF7] rounded-2xl shadow-xl border border-[#E8DCCB] overflow-hidden z-[60]">
+            <div v-if="isSearching" class="p-4 text-center text-xs text-muted font-bold">
+              <svg class="animate-spin h-5 w-5 mx-auto text-terracotta mb-2" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              Mencari produk...
+            </div>
+            <div v-else-if="searchResults.length === 0" class="p-4 text-center text-xs text-[#6F6259] font-bold">
+              Produk tidak ditemukan
+            </div>
+            <div v-else class="max-h-[50vh] overflow-y-auto hide-scrollbar">
+              <a v-for="item in searchResults" :key="item.id" href="javascript:void(0)"
+                @click.prevent="goToProduct(item)"
+                class="flex items-center gap-3 p-3 hover:bg-[#F8F1E7] transition-colors border-b border-[#E8DCCB]/30 last:border-0">
+                <img :src="item.images?.[0] ?? item.image_url ?? '/images/placeholder.png'"
+                  class="w-10 h-10 rounded-lg object-cover bg-white border border-[#E8DCCB]/20 flex-shrink-0" />
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-bold text-espresso truncate">{{ item.name }}</p>
+                  <p class="text-[10px] text-terracotta font-bold mt-0.5">Rp {{ Number(item.price ??
+                    0).toLocaleString('id-ID') }}</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+
   </header>
 </template>
 
@@ -409,22 +483,50 @@ const showUserMenu = ref(false);
 
 const showNotifications = ref(false);
 const showCart = ref(false);
+const showMobileSearch = ref(false);
+const mobileSearchInput = ref(null);
 const isLoggedIn = computed(() => !!props.user);
 const cartCount = computed(() => cartStore.itemCount);
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value;
-  if (showUserMenu.value) { showNotifications.value = false; showCart.value = false; }
+  if (showUserMenu.value) {
+    showNotifications.value = false;
+    showCart.value = false;
+    showMobileSearch.value = false;
+  }
 };
 
 const toggleNotifications = () => {
   showNotifications.value = !showNotifications.value;
-  if (showNotifications.value) { showUserMenu.value = false; showCart.value = false; }
+  if (showNotifications.value) {
+    showUserMenu.value = false;
+    showCart.value = false;
+    showMobileSearch.value = false;
+  }
 };
 
 const toggleCart = () => {
   showCart.value = !showCart.value;
-  if (showCart.value) { showUserMenu.value = false; showNotifications.value = false; }
+  if (showCart.value) {
+    showUserMenu.value = false;
+    showNotifications.value = false;
+    showMobileSearch.value = false;
+  }
+};
+
+const toggleMobileSearch = () => {
+  showMobileSearch.value = !showMobileSearch.value;
+  if (showMobileSearch.value) {
+    showUserMenu.value = false;
+    showNotifications.value = false;
+    showCart.value = false;
+    setTimeout(() => {
+      if (mobileSearchInput.value) {
+        mobileSearchInput.value.focus();
+      }
+    }, 100);
+  }
 };
 
 
@@ -580,7 +682,10 @@ const handleClickOutside = (e) => {
   if (!e.target.closest('.user-menu')) showUserMenu.value = false;
   if (!e.target.closest('.notification-menu')) showNotifications.value = false;
   if (!e.target.closest('.cart-menu')) showCart.value = false;
-  if (!e.target.closest('.search-container')) showSearchResults.value = false;
+  if (!e.target.closest('.search-container') && !e.target.closest('.mobile-search-toggle')) {
+    showSearchResults.value = false;
+    showMobileSearch.value = false;
+  }
 };
 
 onMounted(() => {
